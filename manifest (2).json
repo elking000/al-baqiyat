@@ -1,0 +1,16 @@
+{
+  "name": "منصة الباقيات",
+  "short_name": "الباقيات",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#0f4c3a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/4358/4358665.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
