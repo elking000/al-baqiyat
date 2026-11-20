@@ -1,1 +1,250 @@
-???????
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة الباقيات | صدقة جارية</title>
+    <meta name="theme-color" content="#0f4c3a">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f4c3a;
+            --gold: #c9a227;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #1f2937;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding-bottom: 60px;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary), #092e23);
+            color: #fff;
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 4px solid var(--gold);
+        }
+        header h1 {
+            font-family: 'Amiri', serif;
+            font-size: 2.4rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        header p { font-size: 1.1rem; opacity: 0.9; }
+        .container { max-width: 800px; margin: -20px auto 0; padding: 0 15px; }
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .dua-text {
+            font-family: 'Amiri', serif;
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin: 15px 0;
+        }
+        .tasbih-btn {
+            background: var(--primary);
+            color: #fff;
+            border: 3px solid var(--gold);
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 15px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+            box-shadow: 0 6px 15px rgba(15, 76, 58, 0.3);
+        }
+        .tasbih-btn:active { transform: scale(0.95); }
+        .tasbih-btn span { font-size: 0.9rem; font-weight: normal; margin-top: 5px; color: var(--gold); }
+        .dhikr-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 320px;
+        }
+        .guestbook-form input, .guestbook-form textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-gold { background: var(--gold); color: #092e23; }
+        #installBtn {
+            display: none;
+            margin: 15px auto 0;
+        }
+        .guest-list { text-align: right; margin-top: 20px; }
+        .guest-item {
+            background: #f3f4f6;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-right: 4px solid var(--gold);
+        }
+        .guest-item strong { color: var(--primary); display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>منصة الباقيات</h1>
+    <p>وَالْبَاقِيَاتُ الصَّالِحَاتُ خَيْرٌ عِندَ رَبِّكَ ثَوَابًا وَخَيْرٌ أَمَلًا</p>
+    <button id="installBtn" class="btn btn-gold">📲 تثبيت التطبيق على جهازك</button>
+</header>
+
+<div class="container">
+    <!-- قسم الدعاء -->
+    <div class="card">
+        <h2>دعاء للمتوفى</h2>
+        <p class="dua-text">
+            "اللهم اغفر له وارحمه، وعافه واعفُ عنه، وأكرم نزله، ووسع مدخله، واغسله بالماء والثلج والبرد، ونقّه من الخطايا كما نقّيت الثوب الأبيض من الدنس."
+        </p>
+    </div>
+
+    <!-- قسم السبحة الإلكترونية -->
+    <div class="card">
+        <h2>السبحة الإلكترونية (صدقة جارية)</h2>
+        <select id="dhikrType" class="dhikr-select" onchange="resetCounter()">
+            <option value="سبحان الله وبحمده">سبحان الله وبحمده</option>
+            <option value="أستغفر الله العظيم">أستغفر الله العظيم</option>
+            <option value="لا إله إلا الله">لا إله إلا الله</option>
+            <option value="اللهم صلِ وسلم على نبينا محمد">اللهم صلِ وسلم على نبينا محمد</option>
+        </select>
+        <button class="tasbih-btn" onclick="incrementCounter()">
+            <div id="count">0</div>
+            <span>اضغط للتسبيح</span>
+        </button>
+    </div>
+
+    <!-- دفتر الدعوات -->
+    <div class="card">
+        <h2>اترك دعوة طيبة</h2>
+        <form class="guestbook-form" id="duaForm" onsubmit="addDua(event)">
+            <input type="text" id="senderName" placeholder="الاسم (اختياري)">
+            <textarea id="senderDua" rows="3" placeholder="اكتب دعاءك هنا..." required></textarea>
+            <button type="submit" class="btn">إرسال الدعاء</button>
+        </form>
+        <div class="guest-list" id="guestList"></div>
+    </div>
+</div>
+
+<script>
+    // 1. السبحة الإلكترونية
+    let count = parseInt(localStorage.getItem('tasbihCount') || '0');
+    document.getElementById('count').innerText = count;
+
+    function incrementCounter() {
+        count++;
+        document.getElementById('count').innerText = count;
+        localStorage.setItem('tasbihCount', count);
+        if (navigator.vibrate) navigator.vibrate(30);
+    }
+
+    function resetCounter() {
+        count = 0;
+        document.getElementById('count').innerText = count;
+    }
+
+    // 2. دفتر الدعوات (تخزين محلي مؤقت لحين الربط بـ Google Apps Script)
+    const APPS_SCRIPT_URL = ""; // ضع رابط Google Apps Script هنا للربط بـ Google Sheets
+
+    function loadDuas() {
+        const duas = JSON.parse(localStorage.getItem('baqiyatDuas') || '[]');
+        const list = document.getElementById('guestList');
+        list.innerHTML = duas.map(d => `
+            <div class="guest-item">
+                <strong>${d.name || 'فاعل خير'}</strong>
+                <p>${d.text}</p>
+            </div>
+        `).join('');
+    }
+
+    function addDua(e) {
+        e.preventDefault();
+        const name = document.getElementById('senderName').value.trim() || 'فاعل خير';
+        const text = document.getElementById('senderDua').value.trim();
+        if (!text) return;
+
+        const duas = JSON.parse(localStorage.getItem('baqiyatDuas') || '[]');
+        duas.unshift({ name, text, date: new Date().toLocaleDateString('ar-EG') });
+        localStorage.setItem('baqiyatDuas', JSON.stringify(duas));
+
+        if (APPS_SCRIPT_URL) {
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ name, text })
+            });
+        }
+
+        document.getElementById('duaForm').reset();
+        loadDuas();
+    }
+    loadDuas();
+
+    // 3. تفعيل تثبيت التطبيق PWA
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'inline-block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        }
+    });
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+</script>
+
+</body>
+</html>
