@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>الباقيات | صدقة جارية وأثر باقٍ</title>
 
+  <meta name="theme-color" content="#062D23">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -940,7 +941,7 @@
       <p class="platform-cta-desc">يمكنك إنشاء صفحة صدقة جارية إلكترونية مخصصة ومماثلة لأحبائك في دقائق معدودة.</p>
       <div class="platform-charity-pill">✨ 10% من كل صفحة تخرج صدقة إطعام وسقيا ماء لروح المتوفى</div>
       <div class="platform-actions-grid">
-        <a href="https://al-baqiyat.neocities.org/" class="btn-platform-action btn-official-site">زيارة المنصة 🌐</a>
+        <a href="https://al-baqiyat.site/" class="btn-platform-action btn-official-site">زيارة المنصة 🌐</a>
         <button type="button" class="btn-platform-action btn-official-wa" onclick="openDirectWhatsApp()">طلب صفحة 💬</button>
       </div>
     </div>
@@ -988,6 +989,8 @@
 </div>
 
 <script>
+  const BASE_URL = "https://al-baqiyat.site";
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
   }
@@ -1319,7 +1322,7 @@
 
       renderDeceasedDuas(person, isFem);
     
-      const cleanUrl = "https://al-baqiyat.neocities.org/?page=" + encodeURIComponent(person.slug);
+      const cleanUrl = `${BASE_URL}/?page=${encodeURIComponent(person.slug)}`;
       document.getElementById("qr-element").src = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=" + encodeURIComponent(cleanUrl);
 
       tasbeehStorageKey = "tasbeeh_multicount_" + person.slug;
@@ -1378,7 +1381,6 @@
 
     setTimeout(() => {
       document.getElementById("prayer-reminder-title").textContent = `🕌 حان الآن وقت صلاة ${prayerName}`;
-      const pronoun = isFem ? "لها" : "له";
       document.getElementById("prayer-reminder-msg").textContent = `تقبل الله طاعتكم وصالح أعمالكم.. اجعل لـ (${person.name}) نصيباً من دعائك بالرحمة والمغفرة في هذا الوقت المبارك، وادعُ لنفسك وأهلك بالخير والبركة 🤍`;
       document.getElementById("prayer-reminder-modal").style.display = "flex";
       try { localStorage.setItem(seenKey, "true"); } catch(e) {}
@@ -1670,7 +1672,6 @@
 
   function updateActiveSurahCell(pageNum) {
     document.querySelectorAll('#surahs-list-read .surah-cell').forEach(c => c.classList.remove('active'));
-    // إيجاد السورة الأقرب للصفحة
     let matchedIndex = 1;
     for (let i = 0; i < SURAH_START_PAGES.length; i++) {
       if (pageNum >= SURAH_START_PAGES[i]) {
@@ -1849,14 +1850,14 @@
 
   function shareWhatsApp() {
     if (!currentPerson) return;
-    const link = "https://al-baqiyat.neocities.org/?page=" + encodeURIComponent(currentPerson.slug);
+    const link = `${BASE_URL}/?page=${encodeURIComponent(currentPerson.slug)}`;
     const text = encodeURIComponent(`صدقة جارية وتطبيق دعاء ومصحف كامل للمغفور له بإذن الله (${currentPerson.name})، نسألكم الدعاء له بالرحمة والمغفرة:\n${link}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   }
 
   function copyLink() {
     if (!currentPerson) return;
-    const link = "https://al-baqiyat.neocities.org/?page=" + encodeURIComponent(currentPerson.slug);
+    const link = `${BASE_URL}/?page=${encodeURIComponent(currentPerson.slug)}`;
     fallbackCopy(link, "تم نسخ رابط الصدقة الجارية بنجاح! 🔗");
   }
 
