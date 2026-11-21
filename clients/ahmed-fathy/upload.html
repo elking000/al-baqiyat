@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدارة ألبوم الذكريات | عريس الجنة أحمد محمد فتحي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090B;
+      --card: #12110E;
+      --gold: #D4AF37;
+      --gold-light: #F5DF99;
+      --text: #F8F3E8;
+      --muted: #B8AE9A;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px 14px 50px;
+    }
+    .container { max-width: 500px; margin: 0 auto; }
+    .header {
+      text-align: center;
+      padding: 18px;
+      border-bottom: 1px solid rgba(212,175,55,0.4);
+      margin-bottom: 18px;
+    }
+    .header h1 {
+      font-family: 'Amiri', serif;
+      color: var(--gold-light);
+      font-size: 1.7rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(212,175,55,0.45);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    label { display: block; font-size: 0.9rem; color: var(--gold-light); margin-bottom: 6px; font-weight: 700; }
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      background: #050506;
+      border: 1px solid rgba(212,175,55,0.45);
+      color: var(--text);
+      padding: 11px 12px;
+      border-radius: 10px;
+      font-family: 'Cairo', sans-serif;
+      margin-bottom: 12px;
+      outline: none;
+    }
+    .file-drop {
+      border: 2px dashed var(--gold);
+      border-radius: 14px;
+      padding: 24px 12px;
+      text-align: center;
+      background: rgba(212,175,55,0.06);
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+    .preview-img {
+      max-width: 100%;
+      max-height: 240px;
+      border-radius: 10px;
+      border: 1px solid var(--gold);
+      margin: 10px auto;
+      display: none;
+    }
+    .btn-gold {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #09090B;
+      border: none;
+      padding: 12px;
+      border-radius: 50px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .btn-gold:disabled { opacity: 0.6; cursor: not-allowed; }
+    .status-msg { text-align: center; margin-top: 10px; font-size: 0.9rem; font-weight: 700; }
+    .manage-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .manage-item {
+      background: #060607;
+      border: 1px solid rgba(212,175,55,0.35);
+      border-radius: 10px;
+      padding: 6px;
+      text-align: center;
+    }
+    .manage-item img {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .btn-del {
+      margin-top: 6px;
+      background: rgba(220, 53, 69, 0.2);
+      border: 1px solid #dc3545;
+      color: #ff8a93;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.78rem;
+      cursor: pointer;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📸 إدارة ألبوم الذكريات</h1>
+      <p style="color: var(--muted); font-size: 0.88rem;">صفحة صدقة جارية — عريس الجنة أحمد محمد فتحي</p>
+    </div>
+
+    <div class="card">
+      <label>الرقم السري (PIN):</label>
+      <input type="password" id="adminPin" placeholder="أدخلي الرقم السري للرفع">
+
+      <label>اختيار الصورة:</label>
+      <div class="file-drop" onclick="document.getElementById('fileInput').click()">
+        <div style="font-size: 1.8rem;">🖼️</div>
+        <div style="color: var(--gold-light); font-weight: 700;">اضغطي هنا لاختيار صورة من الموبايل</div>
+        <small style="color: var(--muted);">سيتم ضغط الصورة تلقائياً لتظهر بأعلى جودة وسرعة</small>
+        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewSelectedImage(this)">
+      </div>
+      <img id="previewImg" class="preview-img" alt="معاينة">
+
+      <label>وصف أو ذكرى مع الصورة (اختياري):</label>
+      <input type="text" id="photoCaption" placeholder="مثال: أحمد مع العائلة — ربنا يرحمك يا حبيبي">
+
+      <button id="uploadBtn" class="btn-gold" onclick="uploadPhoto()">⬆️ رفع الصورة للألبوم الآن</button>
+      <div id="statusMsg" class="status-msg"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="color: var(--gold-light); font-weight: 800;">الصور المرفوعة حالياً</span>
+        <button onclick="loadManagePhotos()" style="background:none; border:1px solid var(--gold); color:var(--gold-light); padding:3px 10px; border-radius:20px; font-family:'Cairo'; cursor:pointer;">تحديث</button>
+      </div>
+      <div id="manageGrid" class="manage-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby9DNYkfSwuaWb-j_zCRJr0RA321bDQab_HyZQ63ZY56yRPTheUPAMf4KraPKMvB0uabg/exec";
+    let compressedBase64 = "";
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+
+    function previewSelectedImage(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 1200;
+          let w = img.width, h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          compressedBase64 = dataUrl.split(',')[1];
+          const prev = document.getElementById('previewImg');
+          prev.src = dataUrl;
+          prev.style.display = 'block';
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function uploadPhoto() {
+      const pin = document.getElementById('adminPin').value.trim();
+      const caption = document.getElementById('photoCaption').value.trim();
+      const btn = document.getElementById('uploadBtn');
+      const status = document.getElementById('statusMsg');
+
+      if (!pin) { status.style.color = "#ff8a93"; status.textContent = "اكتبي الرقم السري أولاً"; return; }
+      if (!compressedBase64) { status.style.color = "#ff8a93"; status.textContent = "اختاري صورة أولاً"; return; }
+
+      btn.disabled = true;
+      btn.textContent = "⏳ جاري رفع الصورة وحفظها...";
+      status.textContent = "";
+
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            pin: pin,
+            imageBase64: compressedBase64,
+            mimeType: "image/jpeg",
+            fileName: "ahmed_" + Date.now() + ".jpg",
+            caption: caption
+          })
+        });
+        const result = await res.json();
+        if (result.status === "success") {
+          status.style.color = "#4ade80";
+          status.textContent = "✅ تم رفع الصورة بنجاح وظهرت في الصفحة!";
+          document.getElementById('photoCaption').value = "";
+          document.getElementById('previewImg').style.display = "none";
+          compressedBase64 = "";
+          loadManagePhotos();
+        } else {
+          status.style.color = "#ff8a93";
+          status.textContent = "❌ " + (result.message || "حدث خطأ");
+        }
+      } catch (err) {
+        status.style.color = "#ff8a93";
+        status.textContent = "❌ تعذر الاتصال بالسيرفر، تأكد من الرابط.";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "⬆️ رفع الصورة للألبوم الآن";
+      }
+    }
+
+    async function loadManagePhotos() {
+      const grid = document.getElementById('manageGrid');
+      grid.innerHTML = "<small style='color:var(--muted)'>جاري التحميل...</small>";
+      try {
+        const res = await fetch(APPS_SCRIPT_URL + "?action=list");
+        const data = await res.json();
+        if (!data.photos || data.photos.length === 0) {
+          grid.innerHTML = "<small style='color:var(--muted)'>لا توجد صور مرفوعة بعد.</small>";
+          return;
+        }
+        grid.innerHTML = data.photos.map(p => `
+          <div class="manage-item">
+            <img src="${p.url}" onerror="this.src='${p.fallbackUrl}'" alt="">
+            <div style="font-size:0.75rem; color:var(--text); margin-top:4px;">${escapeHTML(p.caption || 'بدون وصف')}</div>
+            <button class="btn-del" onclick="deletePhoto('${escapeHTML(p.id)}')">حذف الصورة</button>
+          </div>
+        `).join('');
+      } catch (e) {
+        grid.innerHTML = "";
+      }
+    }
+
+    async function deletePhoto(id) {
+      const pin = document.getElementById('adminPin').value.trim();
+      if (!pin) { alert("أدخلي الرقم السري في الخانة بالأعلى أولاً لحذف الصورة."); return; }
+      if (!confirm("هل أنتِ متأكدة من حذف هذه الصورة؟")) return;
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=delete&id=${encodeURIComponent(id)}&pin=${encodeURIComponent(pin)}`);
+      const data = await res.json();
+      if (data.status === "success") loadManagePhotos();
+      else alert(data.message || "تعذر الحذف");
+    }
+
+    window.addEventListener('DOMContentLoaded', loadManagePhotos);
+  </script>
+</body>
+</html>

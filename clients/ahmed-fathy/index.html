@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>صَدَقَةٌ جَارِيَةٌ | عريس الجنة أحمد محمد فتحي</title>
+  <meta name="description" content="صدقة جارية على روح المغفور له بإذن الله عريس الجنة أحمد محمد فتحي — رسالة من بسمة، المصحف الشريف كاملاً، إذاعة القرآن الكريم، وأدعية.">
+  <meta name="theme-color" content="#09090B">
+
+  <!-- إعدادات معاينة الواتساب وفيسبوك (Open Graph) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="صَدَقَةٌ جَارِيَةٌ | عريس الجنة أحمد محمد فتحي">
+  <meta property="og:description" content="رسالة من بسمة إلى عريس الجنة أحمد محمد فتحي — اللهم اجعل هذا العمل صدقة جارية ونوراً له في قبره.">
+  <meta property="og:image" content="ahmed.jpg">
+
+  <!-- إعدادات PWA وأيقونة التطبيق بصورة أحمد -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/jpeg" href="ahmed.jpg">
+  <link rel="apple-touch-icon" sizes="180x180" href="ahmed.jpg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="أحمد فتحي">
+
+  <!-- خطوط عربية ومصحفية ملكية -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- مكتبات توليد QR وتصوير الكارت بالكامل -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+
+  <style>
+    :root {
+      --bg-onyx: #09090B;
+      --bg-deep: #040405;
+      --bg-card: #12110E;
+      --bg-card-alt: #181612;
+      --gold: #D4AF37;
+      --gold-light: #F5DF99;
+      --gold-dark: #8A6824;
+      --gold-glow: rgba(212, 175, 55, 0.3);
+      --text-main: #F8F3E8;
+      --text-muted: #C4B9A3;
+      --border-gold: 1px solid rgba(212, 175, 55, 0.5);
+      --font-ui: 'Cairo', sans-serif;
+      --font-royal: 'Amiri', serif;
+      --font-quran: 'Amiri Quran', serif;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-ui);
+      background-color: var(--bg-onyx);
+      background-image:
+        radial-gradient(circle at 50% 10%, rgba(212, 175, 55, 0.14), transparent 55%),
+        radial-gradient(rgba(212, 175, 55, 0.04) 1px, transparent 1px),
+        repeating-linear-gradient(45deg, rgba(212, 175, 55, 0.025) 0px, rgba(212, 175, 55, 0.025) 1px, transparent 1px, transparent 22px);
+      background-size: 100% 100%, 24px 24px, 100% 100%;
+      color: var(--text-main);
+      line-height: 1.7;
+      padding-bottom: 45px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 0 14px;
+    }
+
+    /* زر تثبيت التطبيق أعلى يسار الشاشة */
+    .pwa-install-btn {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 998;
+      background: linear-gradient(135deg, #FFF1B8 0%, #D4AF37 50%, #9E7823 100%);
+      color: #09090B;
+      border: 1.5px solid #FFF4C8;
+      padding: 7px 14px;
+      border-radius: 50px;
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.85), 0 0 14px rgba(212, 175, 55, 0.45);
+      transition: transform 0.15s ease;
+    }
+
+    .pwa-install-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* نافذة تعليمات التثبيت */
+    .pwa-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .pwa-modal-box {
+      background: linear-gradient(180deg, #171510, #09090B);
+      border: 1.5px solid var(--gold);
+      border-radius: 18px;
+      padding: 20px 18px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.95);
+    }
+
+    .pwa-modal-box h3 {
+      font-family: var(--font-royal);
+      color: var(--gold-light);
+      font-size: 1.35rem;
+      margin-bottom: 10px;
+    }
+
+    .pwa-step-box {
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      text-align: right;
+      line-height: 1.75;
+    }
+
+    /* الهيدر الملكي */
+    .royal-hero {
+      position: relative;
+      text-align: center;
+      padding: 50px 14px 22px;
+      background: linear-gradient(180deg, #030304 0%, rgba(9, 9, 11, 0.94) 100%);
+      border-bottom: 1.5px solid rgba(212, 175, 55, 0.45);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+
+    .corner-ornament {
+      position: absolute;
+      width: 68px;
+      height: 68px;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .corner-tr { top: 6px; right: 6px; }
+    .corner-tl { top: 6px; left: 6px; transform: scaleX(-1); }
+
+    .main-sadaqah-title {
+      font-family: var(--font-royal);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      text-shadow: 0 2px 14px rgba(212, 175, 55, 0.35);
+      margin-bottom: 2px;
+    }
+
+    .gold-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 6px auto 14px;
+      width: 210px;
+    }
+    .gold-divider::before, .gold-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .gold-divider span {
+      color: var(--gold);
+      font-size: 0.85rem;
+    }
+
+    /* البرواز الذهبي الملكي الفاخر */
+    .luxury-frame-outer {
+      position: relative;
+      width: 242px;
+      height: 266px;
+      margin: 18px auto 24px;
+      padding: 14px;
+      border-radius: 10px;
+      background:
+        repeating-linear-gradient(45deg, rgba(65, 45, 8, 0.25) 0px, rgba(65, 45, 8, 0.25) 2px, transparent 2px, transparent 6px),
+        linear-gradient(135deg, #FFF3C4 0%, #D4AF37 25%, #785614 50%, #E8C766 75%, #8C661D 100%);
+      box-shadow:
+        0 0 0 2px #1E1404,
+        0 0 0 4px #D4AF37,
+        0 0 0 7px #09090B,
+        0 18px 42px rgba(0, 0, 0, 0.95),
+        0 0 38px rgba(212, 175, 55, 0.34);
+    }
+
+    .luxury-frame-bevel {
+      width: 100%;
+      height: 100%;
+      padding: 6px;
+      background: linear-gradient(180deg, #2D1F07, #0D0902);
+      border: 1.5px solid #F7E39C;
+      border-radius: 4px;
+      box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.95);
+    }
+
+    .luxury-frame-photo {
+      width: 100%;
+      height: 100%;
+      border: 1.5px solid #B88E28;
+      overflow: hidden;
+      background: #121212;
+    }
+
+    .luxury-frame-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+
+    .frame-medallion-top, .frame-medallion-bottom {
+      position: absolute;
+      left: 50%;
+      width: 96px;
+      height: 30px;
+      z-index: 6;
+      pointer-events: none;
+      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.9));
+    }
+    .frame-medallion-top { top: -18px; transform: translateX(-50%); }
+    .frame-medallion-bottom { bottom: -18px; transform: translateX(-50%) scaleY(-1); }
+
+    .frame-crest-corner {
+      position: absolute;
+      width: 54px;
+      height: 54px;
+      z-index: 5;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85));
+    }
+    .fcc-tr { top: -10px; right: -10px; }
+    .fcc-tl { top: -10px; left: -10px; transform: scaleX(-1); }
+    .fcc-br { bottom: -10px; right: -10px; transform: scaleY(-1); }
+    .fcc-bl { bottom: -10px; left: -10px; transform: scale(-1, -1); }
+
+    /* فصل اللقب والاسم وتاريخ الوفاة */
+    .angel-title-badge {
+      display: inline-block;
+      font-family: var(--font-royal);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      padding: 2px 24px;
+      border-radius: 50px;
+      margin-bottom: 10px;
+    }
+
+    .deceased-name {
+      font-family: var(--font-royal);
+      font-size: 2.15rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      line-height: 1.3;
+      margin: 0 0 10px;
+      letter-spacing: 0.3px;
+      text-shadow: 0 2px 14px rgba(212, 175, 55, 0.3), 0 2px 6px #000;
+    }
+
+    /* شارة تاريخ الوفاة والعداد التلقائي */
+    .death-meta-box {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(180deg, rgba(212, 175, 55, 0.1), rgba(10, 10, 12, 0.9));
+      border: 1px solid rgba(212, 175, 55, 0.42);
+      border-radius: 14px;
+      padding: 8px 20px;
+      margin: 2px auto 10px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+    }
+
+    .death-date-line {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .death-date-line strong {
+      color: var(--gold-light);
+      letter-spacing: 0.5px;
+    }
+
+    .days-counter-pill {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px dashed rgba(212, 175, 55, 0.5);
+      padding: 2px 14px;
+      border-radius: 50px;
+    }
+
+    /* صندوق رسالة من بسمة */
+    .basma-card {
+      position: relative;
+      margin: 14px auto 16px;
+      padding: 20px 18px;
+      background: linear-gradient(180deg, rgba(18, 16, 12, 0.96), rgba(8, 8, 10, 0.98));
+      border: 1.5px solid var(--gold);
+      outline: 1px solid rgba(212, 175, 55, 0.3);
+      outline-offset: -6px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+    }
+
+    .basma-card-header {
+      font-family: var(--font-royal);
+      font-size: 1.38rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      margin-bottom: 6px;
+    }
+
+    .basma-card-subtitle {
+      font-size: 1.06rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed rgba(212, 175, 55, 0.28);
+    }
+
+    .basma-card-body {
+      font-size: 0.97rem;
+      color: var(--text-main);
+      line-height: 1.95;
+      text-align: center;
+    }
+
+    .basma-card-body p {
+      margin-bottom: 12px;
+    }
+
+    .basma-card-body p:last-child {
+      margin-bottom: 0;
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
+    /* أزرار التنقل الموحدة */
+    .unified-nav-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .hero-tab-btn {
+      background: linear-gradient(180deg, #171510, #0A0A0C);
+      border: 1.5px solid rgba(212, 175, 55, 0.55);
+      color: var(--gold-light);
+      padding: 11px 8px;
+      border-radius: 12px;
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .hero-tab-btn.active {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #09090B;
+      border-color: var(--gold-light);
+      font-weight: 800;
+      box-shadow: 0 0 18px rgba(212, 175, 55, 0.35);
+    }
+
+    .share-strip-btn {
+      width: 100%;
+      margin-top: 10px;
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px dashed rgba(212, 175, 55, 0.55);
+      color: var(--gold-light);
+      padding: 8px 14px;
+      border-radius: 50px;
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .share-strip-btn:active { background: rgba(212, 175, 55, 0.2); }
+
+    /* الكروت والأقسام الرئيسية */
+    .card {
+      background: var(--bg-card);
+      border: var(--border-gold);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.22);
+    }
+
+    .card-title {
+      color: var(--gold-light);
+      font-size: 1.08rem;
+      font-weight: 800;
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #09090B;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 50px;
+      font-family: var(--font-ui);
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-outline {
+      background: rgba(212, 175, 55, 0.08);
+      color: var(--gold-light);
+      border: 1px solid var(--gold);
+      padding: 8px 14px;
+      border-radius: 50px;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      background: var(--bg-deep);
+      color: var(--text-main);
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: var(--font-ui);
+      font-size: 0.92rem;
+      outline: none;
+    }
+
+    /* إذاعة القرآن */
+    .radio-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .live-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      background: #2ecc71;
+      border-radius: 50%;
+      margin-left: 6px;
+      box-shadow: 0 0 8px #2ecc71;
+    }
+
+    /* المصحف */
+    .quran-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .quran-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .bismillah-banner {
+      text-align: center;
+      font-family: var(--font-quran);
+      font-size: 1.55rem;
+      color: var(--gold-light);
+      padding: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px dashed rgba(212, 175, 55, 0.35);
+    }
+
+    .mushaf-box {
+      background: #0E0D0A;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 14px;
+      padding: 16px 14px;
+      font-family: var(--font-quran);
+      font-size: clamp(1.35rem, 4.6vw, 1.75rem);
+      line-height: 2.35;
+      text-align: justify;
+      color: #F6F0E4;
+      max-height: 62vh;
+      overflow-y: auto;
+    }
+
+    .ayah-span {
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 6px;
+    }
+
+    .ayah-bookmarked {
+      background: rgba(212, 175, 55, 0.25) !important;
+      border-bottom: 2px solid var(--gold);
+    }
+
+    .ayah-num {
+      color: var(--gold);
+      font-size: 0.85em;
+      margin: 0 4px;
+    }
+
+    /* السبحة */
+    .tasbih-display {
+      text-align: center;
+      padding: 18px 10px;
+      background: var(--bg-deep);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 14px;
+      margin: 12px 0;
+    }
+
+    .tasbih-count {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--gold-light);
+      line-height: 1.1;
+    }
+
+    .tasbih-tap-btn {
+      width: 115px;
+      height: 115px;
+      border-radius: 50%;
+      margin: 14px auto 6px;
+      background: radial-gradient(circle, var(--gold-light), var(--gold), var(--gold-dark));
+      color: #080808;
+      border: 4px solid rgba(212, 175, 55, 0.35);
+      font-family: var(--font-ui);
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 0 25px var(--gold-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tasbih-tap-btn:active { transform: scale(0.93); }
+
+    /* تصنيفات وأزرار الأدعية */
+    .dua-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .dua-filter-chip {
+      background: #09090B;
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      color: var(--gold-light);
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .dua-filter-chip.active {
+      background: var(--gold);
+      color: #09090B;
+    }
+
+    .dua-item {
+      background: var(--bg-card-alt);
+      border-right: 3px solid var(--gold);
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      font-size: 0.96rem;
+      line-height: 1.85;
+    }
+
+    .dua-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(212, 175, 55, 0.2);
+    }
+
+    .mini-action-btn {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: var(--gold-light);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-family: var(--font-ui);
+      font-size: 0.74rem;
+      cursor: pointer;
+    }
+
+    /* شبكة ألبوم الصور الملكي */
+    .album-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .album-card {
+      background: #08080A;
+      border: 1.5px solid rgba(212, 175, 55, 0.55);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .album-card:active { transform: scale(0.97); }
+
+    .album-card img {
+      width: 100%;
+      height: 165px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .album-caption {
+      padding: 7px 8px;
+      font-size: 0.8rem;
+      color: var(--gold-light);
+      text-align: center;
+      background: rgba(212, 175, 55, 0.06);
+    }
+
+    .lightbox-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.94);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .lightbox-modal img {
+      max-width: 95%;
+      max-height: 75vh;
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.35);
+    }
+
+    /* دفتر العزاء */
+    .condolence-item {
+      background: var(--bg-deep);
+      border: 1px solid rgba(212, 175, 55, 0.28);
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+
+    .condolence-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .condolence-author {
+      color: var(--gold-light);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .condolence-date {
+      color: var(--text-muted);
+      font-size: 0.74rem;
+    }
+
+    /* كارت الباركود القابل للتنزيل بالكامل */
+    .qr-wrapper {
+      background: radial-gradient(circle at 50% 20%, #171510 0%, #09090B 85%);
+      border: 2px solid var(--gold);
+      outline: 1px solid rgba(212, 175, 55, 0.3);
+      outline-offset: -6px;
+      border-radius: 18px;
+      padding: 22px 18px;
+      text-align: center;
+      max-width: 310px;
+      margin: 0 auto 14px;
+    }
+
+    .qr-top-label {
+      color: var(--gold-light);
+      font-family: var(--font-royal);
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin-bottom: 6px;
+    }
+
+    .qr-angel-badge {
+      display: inline-block;
+      color: var(--gold);
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      background: rgba(212, 175, 55, 0.08);
+      border-radius: 50px;
+      padding: 1px 16px;
+      font-family: var(--font-royal);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .qr-deceased-name {
+      color: #FFFFFF;
+      font-family: var(--font-royal);
+      font-weight: 700;
+      font-size: 1.55rem;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px auto 12px;
+      padding: 10px;
+      background: #09090B;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 12px;
+      width: fit-content;
+    }
+
+    .hidden { display: none !important; }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      margin-top: 20px;
+      padding: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- زر تثبيت التطبيق في أعلى الشمال -->
+  <button id="pwaInstallBtn" class="pwa-install-btn" onclick="triggerAppInstall()">
+    📲 تثبيت كتطبيق
+  </button>
+
+  <!-- نافذة مساعدة التثبيت (للآيفون أو لو اللينك مفتوح جوه واتساب) -->
+  <div id="pwaHelpModal" class="pwa-modal-backdrop hidden" onclick="if(event.target===this) this.classList.add('hidden')">
+    <div class="pwa-modal-box">
+      <h3>📲 تثبيت التطبيق على موبايلك</h3>
+      <div id="pwaHelpText"></div>
+      <button class="btn-gold" style="width:100%; margin-top:8px;" onclick="document.getElementById('pwaHelpModal').classList.add('hidden')">فهمت، تمام</button>
+    </div>
+  </div>
+
+  <!-- تدرجات الذهب للزخارف -->
+  <svg width="0" height="0" style="position:absolute;">
+    <defs>
+      <linearGradient id="royalGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FFF2BD"/>
+        <stop offset="35%" stop-color="#D4AF37"/>
+        <stop offset="70%" stop-color="#8F691E"/>
+        <stop offset="100%" stop-color="#F5DF99"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- الهيدر الملكي -->
+  <header class="royal-hero">
+    <svg class="corner-ornament corner-tr" viewBox="0 0 100 100" fill="none">
+      <path d="M95 5 H35 C20 5 15 15 15 25 C15 35 25 40 32 32 C38 25 30 18 24 22 M95 5 V65 C95 80 85 85 75 85 C65 85 60 75 68 68 C75 62 82 70 78 76 M95 5 L55 45" stroke="#D4AF37" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="52" cy="48" r="3" fill="#F5DF99"/>
+    </svg>
+
+    <div class="container">
+      <div class="main-sadaqah-title">صَدَقَةٌ جَارِيَةٌ</div>
+      <div class="gold-divider"><span>❖</span></div>
+
+      <!-- البرواز الذهبي الملكي الفاخر حول ahmed.jpg -->
+      <div class="luxury-frame-outer">
+        <svg class="frame-medallion-top" viewBox="0 0 140 42" fill="none">
+          <path d="M8 38 C32 38, 44 16, 70 5 C96 16, 108 38, 132 38 C108 32, 90 27, 70 27 C50 27, 32 32, 8 38 Z" fill="url(#royalGoldGrad)" stroke="#241603" stroke-width="1.4"/>
+          <circle cx="70" cy="15" r="5" fill="#FFF6CC" stroke="#5E400B" stroke-width="1.2"/>
+          <circle cx="46" cy="24" r="3" fill="#FFF6CC"/>
+          <circle cx="94" cy="24" r="3" fill="#FFF6CC"/>
+        </svg>
+        <svg class="frame-medallion-bottom" viewBox="0 0 140 42" fill="none">
+          <path d="M8 38 C32 38, 44 16, 70 5 C96 16, 108 38, 132 38 C108 32, 90 27, 70 27 C50 27, 32 32, 8 38 Z" fill="url(#royalGoldGrad)" stroke="#241603" stroke-width="1.4"/>
+          <circle cx="70" cy="15" r="5" fill="#FFF6CC" stroke="#5E400B" stroke-width="1.2"/>
+        </svg>
+
+        <svg class="frame-crest-corner fcc-tr" viewBox="0 0 80 80" fill="none">
+          <path d="M74 6 H22 C10 6 6 16 12 24 C18 30 26 24 22 18 C18 14 34 12 46 14 L14 46 C12 34 14 18 18 22 C24 26 30 18 24 12 C16 6 6 10 6 22 V74 L22 58 V22 H58 L74 6 Z" fill="url(#royalGoldGrad)" stroke="#241603" stroke-width="1.3"/>
+          <circle cx="24" cy="24" r="4.5" fill="#FFF6CC" stroke="#5E400B" stroke-width="1.1"/>
+        </svg>
+        <svg class="frame-crest-corner fcc-tl" viewBox="0 0 80 80" fill="none">
+          <path d="M74 6 H22 C10 6 6 16 12 24 C18 30 26 24 22 18 C18 14 34 12 46 14 L14 46 C12 34 14 18 18 22 C24 26 30 18 24 12 C16 6 6 10 6 22 V74 L22 58 V22 H58 L74 6 Z" fill="url(#royalGoldGrad)" stroke="#241603" stroke-width="1.3"/>
+          <circle cx="24" cy="24" r="4.5" fill="#FFF6CC" stroke="#5E400B" stroke-width="1.1"/>
+        </svg>
+        <svg class="frame-crest-corner fcc-br" viewBox="0 0 80 80" fill="none">
+          <path d="M74 6 H22 C10 6 6 16 12 24 C18 30 26 24 22 18 C18 14 34 12 46 14 L14 46 C12 34 14 18 18 22 C24 26 30 18 24 12 C16 6 6 10 6 22 V74 L22 58 V22 H58 L74 6 Z" fill="url(#royalGoldGrad)" stroke="#241603" stroke-width="1.3"/>
+          <circle cx="24" cy="24" r="4.5" fill="#FFF6CC" stroke="#5E400B" stroke-width="1.1"/>
+        </svg>
+        <svg class="frame-crest-corner fcc-bl" viewBox="0 0 80 80" fill="none">
+          <path d="M74 6 H22 C10 6 6 16 12 24 C18 30 26 24 22 18 C18 14 34 12 46 14 L14 46 C12 34 14 18 18 22 C24 26 30 18 24 12 C16 6 6 10 6 22 V74 L22 58 V22 H58 L74 6 Z" fill="url(#royalGoldGrad)" stroke="#241603" stroke-width="1.3"/>
+          <circle cx="24" cy="24" r="4.5" fill="#FFF6CC" stroke="#5E400B" stroke-width="1.1"/>
+        </svg>
+
+        <div class="luxury-frame-bevel">
+          <div class="luxury-frame-photo">
+            <img src="ahmed.jpg" alt="عريس الجنة أحمد محمد فتحي">
+          </div>
+        </div>
+      </div>
+
+      <!-- اللقب مفصول لوحده -->
+      <div><span class="angel-title-badge">عريس الجنة</span></div>
+
+      <!-- الاسم بخط ملكي واضح ومقروء -->
+      <h1 class="deceased-name">أحمد محمد فتحي</h1>
+
+      <!-- تاريخ الوفاة والعداد التلقائي للأيام -->
+      <div class="death-meta-box">
+        <div class="death-date-line">تاريخ الوفاة: <strong>10 / 11 / 2026</strong></div>
+        <div id="daysSinceCounter" class="days-counter-pill">رحل عن دنيانا منذ 3 أيام</div>
+      </div>
+
+      <div class="gold-divider"><span>✦</span></div>
+
+      <!-- صندوق رسالة من بسمة -->
+      <div class="basma-card">
+        <div class="basma-card-header">❖ رِسَالَةٌ مِن بَسْمَة ❖</div>
+        <div class="basma-card-subtitle">إلى عريس الجنة.. أحمد محمد فتحي</div>
+        <div class="basma-card-body">
+          <p>
+            يا أحمد،<br>
+            والله ما نسيت أنكم كنتم لي أهلاً بعد أهلي، وما شعرت بينكم لحظة أني غريبة، احتويتموني كأني منكم.
+          </p>
+          <p>
+            أحبكم في الله حباً لا ينتهي، ومهما مرت الأيام لن أنساك.<br>
+            ستظل دعواتي تسبق اسمي، وستظل سيرتك الطيبة عطرة في قلبي.
+          </p>
+          <p>
+            اللهم ارحم أحمد رحمة واسعة، واجعل قبره روضة من رياض الجنة، واجبر قلب أمه الغالية شادية، وقلب أبيه محمد فتحي، وقلوب إخوته فتحي وحسن وإبراهيم وزينب وفاطمة، واربط على قلوبهم يا رب.
+          </p>
+        </div>
+      </div>
+
+      <!-- شريط التحكم الموحد بأقسام الصفحة -->
+      <nav class="unified-nav-row">
+        <button id="tab-btn-mushaf" class="hero-tab-btn active" onclick="switchTab('mushaf', true)">📖 المصحف الشريف</button>
+        <button id="tab-btn-tasbih" class="hero-tab-btn" onclick="switchTab('tasbih', true)">🤲 الأدعية والسبحة</button>
+        <button id="tab-btn-album" class="hero-tab-btn" onclick="switchTab('album', true)">🖼️ ألبوم الذكريات</button>
+        <button id="tab-btn-guestbook" class="hero-tab-btn" onclick="switchTab('guestbook', true)">✍️ العزاء والباركود</button>
+      </nav>
+
+      <!-- زرار مشاركة الصفحة -->
+      <button class="share-strip-btn" onclick="sharePage()">📤 مشاركة رابط الصدقة الجارية عبر واتساب</button>
+    </div>
+  </header>
+
+  <main id="mainContent" class="container">
+    <!-- إذاعة القرآن الكريم من القاهرة -->
+    <section class="card">
+      <div class="radio-bar">
+        <div>
+          <div class="card-title"><span class="live-dot"></span> إذاعة القرآن الكريم</div>
+          <small style="color: var(--text-muted);">بث مباشر من القاهرة على مدار 24 ساعة</small>
+        </div>
+        <button id="radioToggleBtn" class="btn-gold" onclick="toggleRadio()">▶ تشغيل</button>
+      </div>
+      <audio id="quranRadio" preload="none" src="https://stream.radiojar.com/8s5u5tpdtwzuv"></audio>
+    </section>
+
+    <!-- القسم 1: المصحف الشريف -->
+    <section id="tab-mushaf" class="card">
+      <div class="card-header">
+        <span class="card-title">📖 المصحف الشريف كاملاً</span>
+        <span id="offlineStatus" style="font-size: 0.78rem; color: var(--gold-light);"></span>
+      </div>
+
+      <div class="quran-controls">
+        <select id="surahSelect" onchange="loadSurah(this.value)"></select>
+        <select id="reciterSelect" onchange="changeReciter()">
+          <option value="ar.alafasy">مشاري العفاسي</option>
+          <option value="ar.husary">محمود خليل الحصري</option>
+          <option value="ar.abdulbasitmurattal">عبد الباسط عبد الصمد</option>
+          <option value="ar.mahermuaiqly">ماهر المعيقلي</option>
+          <option value="ar.minshawi">محمد صديق المنشاوي</option>
+          <option value="ar.ahmedajamy">أحمد العجمي</option>
+        </select>
+      </div>
+
+      <audio id="surahAudio" controls style="width: 100%; height: 38px; margin-bottom: 10px; border-radius: 8px;"></audio>
+
+      <div class="quran-actions">
+        <button class="btn-outline" onclick="goToBookmark()">🔖 علامة الوقف</button>
+        <button class="btn-outline" id="downloadOfflineBtn" onclick="downloadFullQuranOffline()">📥 حفظ المصحف أوفلاين</button>
+      </div>
+
+      <div id="bismillahHeader" class="bismillah-banner">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <div id="mushafContent" class="mushaf-box">جاري تحميل السورة...</div>
+      <small style="display:block; margin-top:8px; color:var(--text-muted); text-align:center;">
+        اضغط على أي آية لتثبيت علامة الوقف (🔖) والعودة إليها لاحقاً
+      </small>
+    </section>
+
+    <!-- القسم 2: السبحة الإلكترونية وموسوعة الأدعية -->
+    <section id="tab-tasbih" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📿 السبحة الإلكترونية</span>
+          <button class="btn-outline" onclick="resetTasbih()">تصفير</button>
+        </div>
+
+        <select id="dhikrSelect" onchange="switchDhikr()">
+          <option value="subhan">سبحان الله وبحمده، سبحان الله العظيم</option>
+          <option value="istighfar">أستغفر الله العظيم الذي لا إله إلا هو الحي القيوم وأتوب إليه</option>
+          <option value="salawat">اللهم صلِّ وسلم وبارك على سيدنا محمد</option>
+          <option value="tahlil">لا إله إلا الله وحده لا شريك له، له الملك وله الحمد</option>
+          <option value="dua_ahmed">اللهم اغفر لأحمد محمد فتحي وارحمه واجعله من عرسان الجنة</option>
+        </select>
+
+        <div class="tasbih-display">
+          <div style="font-size: 0.85rem; color: var(--text-muted);">عدد التسبيحات لهذا الذكر</div>
+          <div id="tasbihCounter" class="tasbih-count">0</div>
+          <button class="tasbih-tap-btn" onclick="incrementTasbih()">سبّح</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🤲 موسوعة الأدعية لعريس الجنة</span>
+        </div>
+
+        <div class="dua-filters">
+          <button class="dua-filter-chip active" onclick="filterDuas('all', this)">الكل (16 دعاء)</button>
+          <button class="dua-filter-chip" onclick="filterDuas('groom', this)">عريس الجنة والحور العين</button>
+          <button class="dua-filter-chip" onclick="filterDuas('shock', this)">الأمان من الفزع والشهادة</button>
+          <button class="dua-filter-chip" onclick="filterDuas('grave', this)">تنوير القبر والمغفرة</button>
+          <button class="dua-filter-chip" onclick="filterDuas('family', this)">الصبر لأمه وأهله</button>
+        </div>
+
+        <div id="duasContainer"></div>
+      </div>
+    </section>
+
+    <!-- القسم 3: ألبوم الذكريات -->
+    <section id="tab-album" class="card hidden">
+      <div class="card-header">
+        <span class="card-title">🖼️ ألبوم ذكريات عريس الجنة</span>
+        <span id="albumCountBadge" style="font-size:0.78rem; color:var(--gold-light);"></span>
+      </div>
+      <div id="albumGrid" class="album-grid">
+        <p style="grid-column: 1/-1; text-align:center; color:var(--text-muted);">جاري تحميل الصور...</p>
+      </div>
+    </section>
+
+    <!-- القسم 4: دفتر العزاء وكارت الباركود -->
+    <section id="tab-guestbook" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">✍️ دفتر العزاء والدعاء</span>
+          <span id="guestbookSyncBadge" style="font-size: 0.75rem; color: var(--gold-light);"></span>
+        </div>
+        <div style="display: grid; gap: 8px;">
+          <input type="text" id="visitorName" placeholder="اسمك الكريم">
+          <textarea id="visitorMsg" rows="3" placeholder="اكتب دعاءً طيباً لعريس الجنة أحمد محمد فتحي..."></textarea>
+          <button id="saveDuaBtn" class="btn-gold" style="width:100%;" onclick="addCondolence()">🤍 نشر الدعاء في الصفحة</button>
+        </div>
+        <div id="condolencesList" style="margin-top: 14px;"></div>
+      </div>
+
+      <!-- كارت الباركود الذهبي القابل للتنزيل بالكامل -->
+      <div class="card" style="text-align: center;">
+        <div class="card-header">
+          <span class="card-title">📱 كارت الباركود الذهبي (QR)</span>
+        </div>
+        <div id="qrCardExport" class="qr-wrapper">
+          <div class="qr-top-label">صَدَقَةٌ جَارِيَةٌ على روح</div>
+          <div><span class="qr-angel-badge">عريس الجنة</span></div>
+          <div class="qr-deceased-name">أحمد محمد فتحي</div>
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:6px;">10 / 11 / 2026</div>
+          <div id="qrcode"></div>
+          <div style="color: var(--text-muted); font-size: 0.8rem;">امسح الكود لقراءة القرآن والدعاء له</div>
+        </div>
+        <button id="downloadCardBtn" class="btn-gold" onclick="downloadFullQRCard()">⬇️ تنزيل الكارت بالكامل للطباعة والمشاركة</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- نافذة تكبير الصورة -->
+  <div id="photoLightbox" class="lightbox-modal hidden" onclick="this.classList.add('hidden')">
+    <img id="lightboxImg" src="" alt="">
+    <p id="lightboxCap" style="color:var(--gold-light); margin-top:12px; font-weight:700; text-align:center;"></p>
+    <small style="color:var(--text-muted); margin-top:6px;">اضغط في أي مكان للإغلاق</small>
+  </div>
+
+  <footer>
+    صَدَقَةٌ جَارِيَةٌ عن روح المغفور له بإذن الله <strong>أحمد محمد فتحي</strong><br>
+    إهداء من <strong>بسمة</strong> — اللهم تقبل واجعله في ميزان حسناته
+  </footer>
+
+  <script>
+    const ALBUM_API_URL = "https://script.google.com/macros/s/AKfycby9DNYkfSwuaWb-j_zCRJr0RA321bDQab_HyZQ63ZY56yRPTheUPAMf4KraPKMvB0uabg/exec";
+    const FIREBASE_DB_URL = "";
+
+    /* =========================================
+       0. عداد الأيام التلقائي منذ تاريخ الوفاة (10/11/2026)
+       ========================================= */
+    function updateDaysSincePassing() {
+      const el = document.getElementById('daysSinceCounter');
+      if (!el) return;
+
+      const deathDateUTC = Date.UTC(2026, 10, 10);
+      const cairoDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+      const [y, m, d] = cairoDateStr.split('-').map(Number);
+      const todayCairoUTC = Date.UTC(y, m - 1, d);
+
+      const diffDays = Math.max(0, Math.floor((todayCairoUTC - deathDateUTC) / (1000 * 60 * 60 * 24)));
+
+      let label = '';
+      if (diffDays === 0) label = 'رحل إلى جوار ربه اليوم';
+      else if (diffDays === 1) label = 'رحل عن دنيانا منذ يوم واحد';
+      else if (diffDays === 2) label = 'رحل عن دنيانا منذ يومين';
+      else if (diffDays >= 3 && diffDays <= 10) label = `رحل عن دنيانا منذ ${diffDays} أيام`;
+      else label = `رحل عن دنيانا منذ ${diffDays} يوماً`;
+
+      el.textContent = label;
+    }
+
+    /* 1. قائمة السور الـ 114 */
+    const SURAHS = [
+      "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس",
+      "هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه",
+      "الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم",
+      "لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر",
+      "فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق",
+      "الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة",
+      "الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج",
+      "نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس",
+      "التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد",
+      "الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات",
+      "القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر",
+      "المسد","الإخلاص","الفلق","الناس"
+    ];
+
+    const surahSelect = document.getElementById('surahSelect');
+    SURAHS.forEach((name, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx + 1;
+      opt.textContent = `${idx + 1}. سورة ${name}`;
+      surahSelect.appendChild(opt);
+    });
+
+    /* 2. IndexedDB للمصحف الأوفلاين */
+    let db;
+    const dbReq = indexedDB.open('AlBaqiyatQuranDB', 1);
+    dbReq.onupgradeneeded = e => {
+      db = e.target.result;
+      if (!db.objectStoreNames.contains('surahs')) {
+        db.createObjectStore('surahs', { keyPath: 'number' });
+      }
+    };
+    dbReq.onsuccess = e => {
+      db = e.target.result;
+      loadSurah(1);
+    };
+
+    function getSurahFromDB(num) {
+      return new Promise(resolve => {
+        if (!db) return resolve(null);
+        const tx = db.transaction('surahs', 'readonly');
+        const req = tx.objectStore('surahs').get(Number(num));
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    function saveSurahToDB(data) {
+      if (!db) return;
+      const tx = db.transaction('surahs', 'readwrite');
+      tx.objectStore('surahs').put(data);
+    }
+
+    function cleanBismillah(text, surahNum, ayahNum) {
+      if (surahNum === 1 || surahNum === 9 || ayahNum !== 1) return text;
+      const prefixes = [
+        "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ ",
+        "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+        "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ",
+        "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+      ];
+      for (const p of prefixes) {
+        if (text.startsWith(p)) return text.slice(p.length).trim();
+      }
+      return text;
+    }
+
+    async function loadSurah(num) {
+      num = Number(num);
+      surahSelect.value = num;
+      const box = document.getElementById('mushafContent');
+      const bismillahHeader = document.getElementById('bismillahHeader');
+
+      bismillahHeader.style.display = (num === 1 || num === 9) ? 'none' : 'block';
+      box.innerHTML = 'جاري تحميل الآيات المباركة...';
+
+      updateAudioSource(num);
+
+      let surahData = await getSurahFromDB(num);
+      if (!surahData) {
+        try {
+          const res = await fetch(`https://api.alquran.cloud/v1/surah/${num}/quran-uthmani`);
+          const json = await res.json();
+          surahData = json.data;
+          saveSurahToDB(surahData);
+        } catch (err) {
+          box.innerHTML = 'تعذر التحميل. تأكد من الاتصال بالإنترنت أو اضغط "حفظ المصحف أوفلاين".';
+          return;
+        }
+      }
+
+      const savedMark = JSON.parse(localStorage.getItem('ahmed_quran_bookmark') || 'null');
+      box.innerHTML = surahData.ayahs.map(a => {
+        const cleanText = cleanBismillah(a.text, num, a.numberInSurah);
+        const isMarked = savedMark && savedMark.surah === num && savedMark.ayah === a.numberInSurah;
+        return `<span id="ayah-${a.numberInSurah}" class="ayah-span ${isMarked ? 'ayah-bookmarked' : ''}" onclick="setBookmark(${num}, ${a.numberInSurah})">${cleanText} <span class="ayah-num">﴿${a.numberInSurah}﴾</span></span> `;
+      }).join('');
+    }
+
+    function setBookmark(surah, ayah) {
+      localStorage.setItem('ahmed_quran_bookmark', JSON.stringify({ surah, ayah }));
+      document.querySelectorAll('.ayah-span').forEach(el => el.classList.remove('ayah-bookmarked'));
+      const target = document.getElementById(`ayah-${ayah}`);
+      if (target) target.classList.add('ayah-bookmarked');
+      if (navigator.vibrate) navigator.vibrate(30);
+    }
+
+    async function goToBookmark() {
+      const saved = JSON.parse(localStorage.getItem('ahmed_quran_bookmark') || 'null');
+      if (!saved) {
+        alert('اضغط على أي آية أولاً لتثبيت علامة الوقف 🔖');
+        return;
+      }
+      await loadSurah(saved.surah);
+      setTimeout(() => {
+        const el = document.getElementById(`ayah-${saved.ayah}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 250);
+    }
+
+    async function downloadFullQuranOffline() {
+      const btn = document.getElementById('downloadOfflineBtn');
+      btn.disabled = true;
+      for (let i = 1; i <= 114; i++) {
+        const exists = await getSurahFromDB(i);
+        if (!exists) {
+          btn.textContent = `جاري الحفظ (${i}/114)...`;
+          const res = await fetch(`https://api.alquran.cloud/v1/surah/${i}/quran-uthmani`);
+          const json = await res.json();
+          saveSurahToDB(json.data);
+        }
+      }
+      btn.textContent = '✅ المصحف محفوظ أوفلاين';
+      document.getElementById('offlineStatus').textContent = 'يعمل بدون إنترنت';
+    }
+
+    /* 3. مشغل التلاوة وإذاعة القرآن الكريم */
+    function updateAudioSource(surahNum) {
+      const reciter = document.getElementById('reciterSelect').value;
+      const audio = document.getElementById('surahAudio');
+      audio.src = `https://cdn.islamic.network/quran/audio-surah/128/${reciter}/${surahNum}.mp3`;
+    }
+
+    function changeReciter() {
+      updateAudioSource(surahSelect.value);
+      document.getElementById('surahAudio').play();
+    }
+
+    function toggleRadio() {
+      const radio = document.getElementById('quranRadio');
+      const btn = document.getElementById('radioToggleBtn');
+      if (radio.paused) {
+        radio.play();
+        btn.textContent = '⏸ إيقاف';
+      } else {
+        radio.pause();
+        btn.textContent = '▶ تشغيل';
+      }
+    }
+
+    /* 4. السبحة الإلكترونية */
+    let tasbihData = JSON.parse(localStorage.getItem('ahmed_tasbih_counts') || '{}');
+
+    function switchDhikr() {
+      const key = document.getElementById('dhikrSelect').value;
+      document.getElementById('tasbihCounter').textContent = tasbihData[key] || 0;
+    }
+
+    function incrementTasbih() {
+      const key = document.getElementById('dhikrSelect').value;
+      tasbihData[key] = (tasbihData[key] || 0) + 1;
+      localStorage.setItem('ahmed_tasbih_counts', JSON.stringify(tasbihData));
+      document.getElementById('tasbihCounter').textContent = tasbihData[key];
+      if (navigator.vibrate) navigator.vibrate(35);
+    }
+
+    function resetTasbih() {
+      const key = document.getElementById('dhikrSelect').value;
+      tasbihData[key] = 0;
+      localStorage.setItem('ahmed_tasbih_counts', JSON.stringify(tasbihData));
+      document.getElementById('tasbihCounter').textContent = 0;
+    }
+
+    /* 5. موسوعة الأدعية الشاملة */
+    const DUAS_LIBRARY = [
+      { cat: "groom", text: "اللهم إن عبدك أحمد محمد فتحي قد خرج من الدنيا شاباً لم يذق نعيم الزواج فيها، اللهم زوّجه من الحور العين، واجعله من عرسان الجنة، وأسكنه قصورها العالية برحمتك يا أرحم الراحمين." },
+      { cat: "groom", text: "اللهم اجعل زفاف أحمد في الجنة أعظم مما تمنى في الدنيا، وأبدله شبابه نعيماً مقيماً لا يزول، وأقرّ عينه بالحور العين وبجوار نبيك محمد ﷺ." },
+      { cat: "groom", text: "اللهم اجعل قبر أحمد محمد فتحي روضة من رياض الجنة، واجعله في مقعد صدق عند مليك مقتدر، عريساً في الفردوس الأعلى متنعماً برضوانك." },
+      { cat: "groom", text: "اللهم كما حُرم من فرحة الدنيا، فافتح له أبواب السماء بالبشائر والسرور، واجعله مع الذين أنعمت عليهم من النبيين والصديقين والشهداء والصالحين." },
+
+      { cat: "shock", text: "اللهم إن عبدك أحمد قد قبضت روحه فجأة ومرّ بلحظة فزع وخوف في الدنيا، اللهم اجعل ذلك الفزع آخر خوف يمر به أبداً، وآمنه يوم الفزع الأكبر، وثبّته عند السؤال." },
+      { cat: "shock", text: "اللهم اكتب لأحمد محمد فتحي أجر الشهداء، فقد مات في حادث وفجأة، اللهم اجعل روحه في حواصل طير خضر تسرح في الجنة حيث شاءت، وأجِره من فتنة القبر وعذابه." },
+      { cat: "shock", text: "اللهم أنزل على روحه السكينة والطمأنينة والأمان، اللهم لا تجعله يرى في قبره إلا النور والسرور، ولقّنه حجته، وبشّره بروح وريحان ورب راضٍ غير غضبان." },
+      { cat: "shock", text: "اللهم إنك تعلم ضعف عبدك ولحظة خوفه عند قبض روحه، فارحمه رحمة واسعة تغنيه عن رحمة من سواك، واجعل ملتقاه بالملائكة برداً وسلاماً." },
+
+      { cat: "grave", text: "اللهم اغفر لعبدك أحمد محمد فتحي وارحمه، وعافه واعف عنه، وأكرم نزله، ووسع مدخله، واغسله بالماء والثلج والبرد، ونقِّه من الخطايا كما ينقى الثوب الأبيض من الدنس." },
+      { cat: "grave", text: "اللهم آنس وحدته، وآنسه في وحشته، وآنسه في غربته، وانقله من ضيق اللحود ومراتع الدود إلى جناتك جنات الخلود." },
+      { cat: "grave", text: "اللهم املأ قبر أحمد بالرضا والنور، والفسحة والسرور، اللهم اجعل عن يمينه نوراً وعن شماله نوراً ومن فوقه نوراً ومن تحته نوراً حتى تبعثه آمناً مطمئناً." },
+      { cat: "grave", text: "اللهم إن كان محسناً فزد في حسناته، وإن كان مسيئاً فتجاوز عن سيئاته، وشفع فيه القرآن والصيام والصلاة، واجعله تحت ظل عرشك يوم لا ظل إلا ظلك." },
+
+      { cat: "family", text: "اللهم اربط على قلب أمه شادية وأبيه محمد فتحي، اللهم أفرغ عليهما صبراً جميلاً، واجبر كسر قلوبهما لفراق فلذة كبدهما، واجعل صبرهما رفعة لهما في الدرجات." },
+      { cat: "family", text: "اللهم هوّن ألم الفراق على إخوته فتحي وحسن وإبراهيم وزينب وفاطمة، واجعل ذكراه الطيبة سكينة في قلوبهم، واجمعهم به في الفردوس الأعلى بلا فراق بعدها أبداً." },
+      { cat: "family", text: "اللهم اجعل أحمد شفيعاً لوالديه يوم القيامة، وألبسهما به تاج الوقار، وعوّض أهله وأحبابه خيراً في الدنيا والآخرة." },
+      { cat: "family", text: "اللهم تقبل هذه الصدقة الجارية عن روح أحمد محمد فتحي، واجعل كل حرف يُقرأ وكل دعوة تُرفع في ميزان حسناته وحسنات كل من سعى فيها." }
+    ];
+
+    let currentFilteredDuas = DUAS_LIBRARY;
+
+    function renderDuas(category = 'all') {
+      const container = document.getElementById('duasContainer');
+      if (!container) return;
+      currentFilteredDuas = category === 'all' ? DUAS_LIBRARY : DUAS_LIBRARY.filter(d => d.cat === category);
+      container.innerHTML = currentFilteredDuas.map((d, idx) => `
+        <div class="dua-item">
+          <div>${d.text}</div>
+          <div class="dua-actions">
+            <button class="mini-action-btn" onclick="copyDuaByIndex(this, ${idx})">📋 نسخ الدعاء</button>
+            <button class="mini-action-btn" onclick="shareDuaByIndex(${idx})">📤 مشاركة</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterDuas(cat, btn) {
+      document.querySelectorAll('.dua-filter-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      renderDuas(cat);
+    }
+
+    function copyDuaByIndex(btn, idx) {
+      const text = currentFilteredDuas[idx].text;
+      navigator.clipboard.writeText(text);
+      const old = btn.textContent;
+      btn.textContent = "✅ تم النسخ";
+      setTimeout(() => btn.textContent = old, 1500);
+    }
+
+    function shareDuaByIndex(idx) {
+      const text = currentFilteredDuas[idx].text;
+      const msg = `🤲 دعاء لعريس الجنة أحمد محمد فتحي:\n"${text}"\n\nصفحة الصدقة الجارية:\n${window.location.href}`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    /* 6. ألبوم الصور من Google Drive */
+    let currentAlbumPhotos = [];
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+
+    async function loadPublicAlbum() {
+      const grid = document.getElementById('albumGrid');
+      const badge = document.getElementById('albumCountBadge');
+      if (!grid) return;
+
+      try {
+        const res = await fetch(ALBUM_API_URL + "?action=list");
+        const data = await res.json();
+        if (!data.photos || data.photos.length === 0) {
+          grid.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:var(--text-muted);'>لا توجد صور مضافة في الألبوم بعد.</p>";
+          return;
+        }
+        currentAlbumPhotos = data.photos;
+        badge.textContent = `${data.photos.length} صورة`;
+        grid.innerHTML = data.photos.map((p, idx) => `
+          <div class="album-card" onclick="openLightbox(${idx})">
+            <img src="${p.url}" onerror="this.src='${p.fallbackUrl}'" loading="lazy" alt="${escapeHTML(p.caption || 'ذكرى طيبة')}">
+            ${p.caption ? `<div class="album-caption">${escapeHTML(p.caption)}</div>` : ''}
+          </div>
+        `).join('');
+      } catch (err) {
+        grid.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:var(--text-muted);'>تعذر تحميل الألبوم حالياً.</p>";
+      }
+    }
+
+    function openLightbox(idx) {
+      const photo = currentAlbumPhotos[idx];
+      if (!photo) return;
+      const imgEl = document.getElementById('lightboxImg');
+      imgEl.src = photo.url;
+      imgEl.onerror = () => { imgEl.src = photo.fallbackUrl; };
+      document.getElementById('lightboxCap').textContent = photo.caption || '';
+      document.getElementById('photoLightbox').classList.remove('hidden');
+    }
+
+    /* 7. دفتر العزاء */
+    const pinnedCondolence = {
+      name: "بسمة",
+      msg: "اللهم ارحم أحمد رحمة واسعة، واجعل قبره روضة من رياض الجنة، واجعل سيرته الطيبة عطرة في قلوبنا دائماً.",
+      date: "مثبّت"
+    };
+
+    async function loadCondolences() {
+      const listEl = document.getElementById('condolencesList');
+      const badgeEl = document.getElementById('guestbookSyncBadge');
+      let items = [];
+
+      if (FIREBASE_DB_URL) {
+        try {
+          badgeEl.textContent = "🟢 متصل مباشرة";
+          const cleanUrl = FIREBASE_DB_URL.replace(/\/$/, "");
+          const res = await fetch(`${cleanUrl}/ahmed_fathy_guestbook.json`);
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            items = Object.values(data).reverse();
+          }
+        } catch (err) {
+          items = JSON.parse(localStorage.getItem('ahmed_condolences_local') || '[]');
+        }
+      } else {
+        items = JSON.parse(localStorage.getItem('ahmed_condolences_local') || '[]');
+      }
+
+      const allItems = [pinnedCondolence, ...items];
+      listEl.innerHTML = allItems.map(item => `
+        <div class="condolence-item">
+          <div class="condolence-header">
+            <span class="condolence-author">🤍 ${escapeHTML(item.name)}</span>
+            <span class="condolence-date">${escapeHTML(item.date || '')}</span>
+          </div>
+          <div style="font-size: 0.93rem;">${escapeHTML(item.msg)}</div>
+        </div>
+      `).join('');
+    }
+
+    async function addCondolence() {
+      const nameInput = document.getElementById('visitorName');
+      const msgInput = document.getElementById('visitorMsg');
+      const btn = document.getElementById('saveDuaBtn');
+
+      const name = nameInput.value.trim() || "فاعل خير";
+      const msg = msgInput.value.trim();
+      if (!msg) return;
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
+      const entry = { name, msg, date: dateStr, ts: Date.now() };
+
+      btn.disabled = true;
+      btn.textContent = "جاري النشر...";
+
+      if (FIREBASE_DB_URL) {
+        try {
+          const cleanUrl = FIREBASE_DB_URL.replace(/\/$/, "");
+          await fetch(`${cleanUrl}/ahmed_fathy_guestbook.json`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry)
+          });
+        } catch (e) { console.error(e); }
+      } else {
+        const local = JSON.parse(localStorage.getItem('ahmed_condolences_local') || '[]');
+        local.unshift(entry);
+        localStorage.setItem('ahmed_condolences_local', JSON.stringify(local));
+      }
+
+      msgInput.value = '';
+      btn.disabled = false;
+      btn.textContent = "🤍 نشر الدعاء في الصفحة";
+      await loadCondolences();
+    }
+
+    function sharePage() {
+      const shareText = "صَدَقَةٌ جَارِيَةٌ على روح عريس الجنة أحمد محمد فتحي — اقرأ القرآن وادعُ له بالرحمة والمغفرة:";
+      if (navigator.share) {
+        navigator.share({
+          title: "صَدَقَةٌ جَارِيَةٌ | أحمد محمد فتحي",
+          text: shareText,
+          url: window.location.href
+        });
+      } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText + "\n" + window.location.href)}`, '_blank');
+      }
+    }
+
+    function switchTab(tabName, shouldScroll) {
+      ['mushaf', 'tasbih', 'album', 'guestbook'].forEach(id => {
+        document.getElementById(`tab-${id}`).classList.add('hidden');
+        document.getElementById(`tab-btn-${id}`).classList.remove('active');
+      });
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      document.getElementById(`tab-btn-${tabName}`).classList.add('active');
+
+      if (shouldScroll) {
+        document.getElementById('mainContent').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    /* 8. توليد الباركود وتنزيل الكارت بالكامل */
+    window.addEventListener('DOMContentLoaded', () => {
+      updateDaysSincePassing();
+      switchDhikr();
+      renderDuas('all');
+      loadPublicAlbum();
+      loadCondolences();
+
+      const qrContainer = document.getElementById("qrcode");
+      if (window.QRCode && qrContainer) {
+        new QRCode(qrContainer, {
+          text: window.location.href,
+          width: 165,
+          height: 165,
+          colorDark: "#D4AF37",
+          colorLight: "#09090B",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+        setTimeout(() => {
+          const qrImg = qrContainer.querySelector('img');
+          const qrCanvas = qrContainer.querySelector('canvas');
+          if (qrImg) qrImg.remove();
+          if (qrCanvas) qrCanvas.style.display = 'block';
+        }, 100);
+      }
+    });
+
+    async function downloadFullQRCard() {
+      const card = document.getElementById('qrCardExport');
+      const btn = document.getElementById('downloadCardBtn');
+      if (!card || !window.html2canvas) return;
+
+      btn.disabled = true;
+      btn.textContent = "⏳ جاري تجهيز الكارت للطباعة...";
+
+      try {
+        await document.fonts.ready;
+        const canvas = await html2canvas(card, {
+          scale: 3,
+          backgroundColor: '#09090B',
+          useCORS: true,
+          logging: false
+        });
+        const link = document.createElement('a');
+        link.download = 'Sadaqah-Card-Ahmed-Fathy.png';
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+      } catch (err) {
+        alert('حدث خطأ أثناء تجهيز الصورة، حاول مرة أخرى.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "⬇️ تنزيل الكارت بالكامل للطباعة والمشاركة";
+      }
+    }
+
+    /* =========================================
+       9. تفعيل PWA وزر تثبيت التطبيق بأيقونة أحمد
+       ========================================= */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW:', err));
+      });
+    }
+
+    let deferredInstallPrompt = null;
+    const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      if (pwaInstallBtn) pwaInstallBtn.style.display = 'none';
+    }
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      if (pwaInstallBtn) pwaInstallBtn.style.display = 'inline-flex';
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      if (pwaInstallBtn) pwaInstallBtn.style.display = 'none';
+    });
+
+    async function triggerAppInstall() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        if (outcome === 'accepted' && pwaInstallBtn) {
+          pwaInstallBtn.style.display = 'none';
+        }
+        deferredInstallPrompt = null;
+        return;
+      }
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const helpBox = document.getElementById('pwaHelpText');
+
+      if (isIOS) {
+        helpBox.innerHTML = `
+          <div class="pwa-step-box">
+            <strong>لمستخدمي الآيفون (Safari):</strong><br>
+            1️⃣ اضغط على أيقونة المشاركة <strong>(⬆️)</strong> في أسفل الشاشة.<br>
+            2️⃣ انزل لأسفل واختر <strong>"إضافة إلى الصفحة الرئيسية" (Add to Home Screen)</strong>.<br>
+            3️⃣ اضغط <strong>"إضافة" (Add)</strong> وهينزل التطبيق بصورة أحمد على شاشتك.
+          </div>
+        `;
+      } else {
+        helpBox.innerHTML = `
+          <div class="pwa-step-box">
+            <strong>خطوات التثبيت السريع:</strong><br>
+            • لو فاتح الرابط من جوه واتساب أو فيسبوك، اضغط على الثلاث نقاط <strong>(⋮)</strong> بالأعلى واختر <strong>"الفتح في المتصفح / Chrome"</strong>.<br>
+            • من متصفح Chrome اضغط على <strong>(⋮)</strong> ثم اختر <strong>"تثبيت التطبيق" (Install App)</strong> وهينزل بصورة أحمد على شاشتك.
+          </div>
+        `;
+      }
+
+      document.getElementById('pwaHelpModal').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
