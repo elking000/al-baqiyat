@@ -1,5 +1,5 @@
-const CACHE_NAME = 'baqiyat-v5';
-const RUNTIME_CACHE = 'baqiyat-runtime-v4';
+const CACHE_NAME = 'baqiyat-v6';
+const RUNTIME_CACHE = 'baqiyat-runtime-v5';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -7,7 +7,7 @@ const PRECACHE = [
   '/icon-192.png',
   '/icon-512.png',
   '/fonts/quran.otf',
-  '/quran-uthmani.json'
+  '/quran-lines.json'
 ];
 
 self.addEventListener('install', (e) => {
