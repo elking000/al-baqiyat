@@ -1,16 +1,1 @@
-{
-  "name": "منصة الباقيات",
-  "short_name": "الباقيات",
-  "start_url": "/index.html",
-  "display": "standalone",
-  "background_color": "#f8f9fa",
-  "theme_color": "#0f4c3a",
-  "orientation": "portrait",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/4358/4358665.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
+{"background_color":"#f8f9fa","display":"standalone","icons":[{"sizes":"192x192","src":"/icon-192.png","type":"image/png"},{"sizes":"512x512","src":"/icon-512.png","type":"image/png"}],"name":"منصة الباقيات","orientation":"portrait","short_name":"الباقيات","start_url":"/index.html","theme_color":"#0f4c3a"}

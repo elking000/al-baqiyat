@@ -11,6 +11,32 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="الباقيات">
   <link rel="apple-touch-icon" href="/icon-512.png">
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    // مانيفست ديناميكي: يجعل الصفحة الحالية (صفحة الفقيد) هي شاشة البدء عند تثبيت التطبيق
+    (function () {
+      try {
+        var startUrl = window.location.pathname + window.location.search;
+        var dynManifest = {
+          name: "منصة الباقيات",
+          short_name: "الباقيات",
+          start_url: startUrl,
+          scope: window.location.pathname,
+          id: startUrl,
+          display: "standalone",
+          background_color: "#f8f9fa",
+          theme_color: "#0f4c3a",
+          orientation: "portrait",
+          icons: [
+            { src: window.location.origin + "/icon-192.png", sizes: "192x192", type: "image/png" },
+            { src: window.location.origin + "/icon-512.png", sizes: "512x512", type: "image/png" }
+          ]
+        };
+        var blob = new Blob([JSON.stringify(dynManifest)], { type: "application/json" });
+        document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(blob);
+      } catch (e) {}
+    })();
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -111,9 +137,14 @@
       font-weight: 700;
     }
     .btn-install-shortcut {
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(197, 160, 89, 0.4);
-      color: #F8E8C9;
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 6;
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      color: #062D23;
+      box-shadow: 0 4px 14px rgba(197, 160, 89, 0.45);
       padding: 4px 12px;
       border-radius: 50px;
       font-size: 11px;
@@ -510,6 +541,120 @@
       outline: none;
     }
 
+
+    /* خط الرسم العثماني — مجمع الملك فهد (KFGQPC) */
+    @font-face {
+      font-family: 'UthmanicHafs';
+      src: url('/fonts/quran.otf') format('opentype');
+      font-display: swap;
+    }
+
+    /* تبديل وضعي المصحف داخل قسم القراءة: مصور / نصي */
+    .mushaf-mode-switch {
+      display: flex;
+      background: #E8EFEA;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 12px;
+      gap: 4px;
+    }
+    .mushaf-mode-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      background: transparent;
+      border-radius: 9px;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .mushaf-mode-btn.active {
+      background: #FFF;
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .mushaf-spinner { display: flex; justify-content: center; align-items: center; padding: 34px 0; width: 100%; }
+    .mushaf-page-stage.text-mode { justify-content: flex-start; }
+    .mushaf-text-view { width: 100%; padding: 16px 12px 20px; }
+    .uthmani-text {
+      font-family: 'UthmanicHafs', 'Amiri', serif;
+      font-size: 25px;
+      line-height: 2.35;
+      color: #0B3D2E;
+      text-align: justify;
+    }
+    .surah-header-band {
+      font-family: 'Amiri', serif;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      background: linear-gradient(135deg, #F4EAD4, #EAD9AE);
+      border: 1.5px solid var(--accent);
+      border-radius: 12px;
+      padding: 6px 10px;
+      margin: 12px 0 8px;
+    }
+    .basmala-line {
+      font-family: 'UthmanicHafs', 'Amiri', serif;
+      text-align: center;
+      font-size: 24px;
+      line-height: 2;
+      color: #0B3D2E;
+      margin: 2px 0 8px;
+    }
+    .ayah-end-mark { color: #9A7B2D; font-size: 0.72em; white-space: nowrap; }
+    .mushaf-fallback-note {
+      background: #FDF3D8;
+      border: 1px solid var(--accent);
+      color: #6B5510;
+      font-size: 11.5px;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 7px 10px;
+      margin-bottom: 10px;
+      text-align: center;
+      width: 100%;
+    }
+    .mushaf-cont-label { text-align: center; font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; }
+    @keyframes mushafSlideNext { from { opacity: 0.25; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+    @keyframes mushafSlidePrev { from { opacity: 0.25; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+    .mushaf-anim-next { animation: mushafSlideNext 0.28s ease; }
+    .mushaf-anim-prev { animation: mushafSlidePrev 0.28s ease; }
+
+    /* زرار تصفير السبحة */
+    .btn-tasbeeh-reset {
+      margin-top: 8px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      background: transparent;
+      border: 1.5px solid var(--accent);
+      color: #F8E8C9;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .btn-tasbeeh-reset:active { transform: scale(0.97); }
+    .tasbeeh-display { transition: transform 0.18s ease; }
+
+    /* شعار المنصة الرسمي */
+    .badge-logo-img {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      box-shadow: 0 8px 22px rgba(6, 45, 35, 0.25);
+      margin-bottom: 16px;
+    }
+
     /* إطار صفحة المصحف النبوي الشريف */
     .mushaf-page-stage {
       background: var(--mushaf-paper-bg);
@@ -706,7 +851,7 @@
 
   <!-- الصفحة الرئيسية للمنصة -->
   <section id="home-view" style="display:none;">
-    <div class="badge-mark">ب</div>
+    <img src="/logo.png" alt="شعار منصة الباقيات" class="badge-logo-img">
     <h1 class="main-brand-title">منصة الباقيات</h1>
     <p class="brand-sub">المنصة الإسلامية الأولى لتخليد الصدقات الجارية الإلكترونية بأعلى معايير الفخامة والتقنية.</p>
 
@@ -794,6 +939,7 @@
         <div class="tasbeeh-title" id="tasbeeh-label">اللهم اغفر له وارحمه</div>
         <div class="tasbeeh-display" id="tasbeeh-val">0</div>
         <button type="button" class="btn-main-action" onclick="clickTasbeeh()">اضغط للتسبيح 🤲</button>
+        <button type="button" class="btn-tasbeeh-reset" id="btn-tasbeeh-reset" onclick="resetTasbeeh()">↺ تصفير العداد</button>
       </div>
 
       <!-- فئات الأدعية الموسعة -->
@@ -833,6 +979,16 @@
 
       <!-- القسم الأول: مصحف المدينة المنورة الأصلي المصور (صفحات 1 إلى 604) -->
       <div id="quran-read-section">
+        <div class="mushaf-mode-switch">
+          <button type="button" class="mushaf-mode-btn active" id="btn-mushaf-image" onclick="switchMushafMode('image')">
+            <span>🖼️</span>
+            <span>المصور (المدينة)</span>
+          </button>
+          <button type="button" class="mushaf-mode-btn" id="btn-mushaf-text" onclick="switchMushafMode('text')">
+            <span>📜</span>
+            <span>النصي (الرسم العثماني)</span>
+          </button>
+        </div>
         <div class="reader-card">
           
           <div class="mushaf-nav-header">
@@ -856,8 +1012,11 @@
           </div>
 
           <!-- مسرح عرض صفحة المصحف النبوي -->
-          <div class="mushaf-page-stage">
-            <img id="mushaf-page-image" class="mushaf-page-img" src="https://quran.ksu.edu.sa/png_pages/1.png" alt="صفحة المصحف الشريف" loading="eager">
+          <div class="mushaf-page-stage" id="mushaf-stage">
+            <div class="mushaf-spinner" id="mushaf-loading" style="display:none;"><div class="spinner-ring"></div></div>
+            <img id="mushaf-page-image" class="mushaf-page-img" src="https://raw.githubusercontent.com/Five-Prayers/quran-pages/main/quran_pages/1.png" alt="صفحة المصحف الشريف" loading="eager">
+            <div id="mushaf-fallback-note" class="mushaf-fallback-note" style="display:none;">تعذّر تحميل صورة الصفحة — يُعرض النص بالرسم العثماني بدلاً منها</div>
+            <div id="mushaf-text-view" class="mushaf-text-view" style="display:none;"></div>
           </div>
 
           <div class="surahs-filter-box">
@@ -1006,7 +1165,17 @@
   
   const SHEET_ID = "1lm-t74RuBaR7q3-9-yF74LhaYRlByr0oywvaPQ9B1Gk";
   const ADMIN_URL = "https://script.google.com/macros/s/AKfycbyX2FzA161MS6YL-VxCAe1ja5MyyO_M-x3Q8NUylB_eJcWE0HbDpDpJ08uvz51xcMJTfg/exec?page=admin";
-  const CAIRO_QURAN_RADIO_URL = "https://stream.radiojar.com/8s5u5tpdtwzuv";
+  // مصادر إذاعة القرآن الكريم — روابط HTTPS مباشرة موثقة (qurango تابع لـ mp3quran)
+  const RADIO_STREAMS = [
+    "https://backup.qurango.net/radio/mix",
+    "https://backup.qurango.net/radio/maher",
+    "https://backup.qurango.net/radio/mishary_alafasi",
+    "https://stream.radiojar.com/8s5u5tpdtwzuv"
+  ];
+  const CAIRO_QURAN_RADIO_URL = RADIO_STREAMS[RADIO_STREAMS.length - 1];
+  let radioStreamIndex = 0;
+  let radioWanted = false;
+  let radioStallTimer = null;
 
   const ALL_SURAHS = [
     "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس",
@@ -1532,32 +1701,91 @@
     document.getElementById("tasbeeh-val").textContent = toArabicDigits(count);
   }
 
-  // مشغل إذاعة القرآن الكريم المباشر 24 ساعة
-  function toggleRadio() {
+  // تصفير عداد الذكر الحالي (ويُحفظ الصفر بنفس طريقة حفظ العداد)
+  function resetTasbeeh() {
+    tasbeehStore[activeDhikrName] = 0;
+    if (Object.prototype.hasOwnProperty.call(tasbeehStore, "total")) tasbeehStore["total"] = 0;
+    if (Object.prototype.hasOwnProperty.call(tasbeehStore, "__total")) tasbeehStore["__total"] = 0;
+    updateTasbeehDisplay();
+    try {
+      localStorage.setItem(tasbeehStorageKey, JSON.stringify(tasbeehStore));
+    } catch(e) {}
+    const btn = document.getElementById("btn-tasbeeh-reset");
+    if (btn) {
+      const oldTxt = "↺ تصفير العداد";
+      btn.textContent = "تم التصفير ✓";
+      btn.style.background = "var(--accent)";
+      btn.style.color = "#111";
+      setTimeout(() => { btn.textContent = oldTxt; btn.style.background = ""; btn.style.color = ""; }, 1200);
+    }
+    const val = document.getElementById("tasbeeh-val");
+    if (val) {
+      val.style.transform = "scale(1.15)";
+      setTimeout(() => { val.style.transform = ""; }, 180);
+    }
+    if (navigator.vibrate) navigator.vibrate(25);
+  }
+
+  // مشغل إذاعة القرآن الكريم المباشر 24 ساعة — مصادر متعددة وتبديل تلقائي عند الفشل أو التقطيع
+  function updateRadioBtn() {
     const icon = document.getElementById("radio-btn-icon");
     const txt = document.getElementById("radio-btn-txt");
-    
-    if (!radioAudio.src || radioAudio.src !== CAIRO_QURAN_RADIO_URL) {
-      radioAudio.src = CAIRO_QURAN_RADIO_URL;
+    if (radioWanted && !radioAudio.paused) {
+      icon.textContent = "⏸";
+      txt.textContent = "إيقاف";
+    } else {
+      icon.textContent = "▶";
+      txt.textContent = "استماع";
     }
+  }
 
+  function clearRadioStallTimer() {
+    if (radioStallTimer) { clearTimeout(radioStallTimer); radioStallTimer = null; }
+  }
+
+  function setRadioStream(index) {
+    radioStreamIndex = index;
+    radioAudio.src = RADIO_STREAMS[index];
+  }
+
+  function advanceRadioStream() {
+    clearRadioStallTimer();
+    if (radioStreamIndex < RADIO_STREAMS.length - 1) {
+      setRadioStream(radioStreamIndex + 1);
+      if (radioWanted) {
+        radioAudio.play().then(updateRadioBtn).catch(() => advanceRadioStream());
+      }
+    } else {
+      radioWanted = false;
+      updateRadioBtn();
+      alert("تعذّر الاتصال ببث الإذاعة الآن، يرجى المحاولة بعد قليل.");
+    }
+  }
+
+  function toggleRadio() {
     if (radioAudio.paused) {
       if (!audio.paused) {
         audio.pause();
         btnPlayPause.textContent = "▶";
       }
-      radioAudio.play().then(() => {
-        icon.textContent = "⏸";
-        txt.textContent = "إيقاف";
-      }).catch(() => {
-        alert("جارٍ تهيئة البث المباشر، يرجى المحاولة مرة ثانية.");
-      });
+      radioWanted = true;
+      if (!radioAudio.src) setRadioStream(radioStreamIndex);
+      radioAudio.play().then(updateRadioBtn).catch(() => advanceRadioStream());
     } else {
+      radioWanted = false;
+      clearRadioStallTimer();
       radioAudio.pause();
-      icon.textContent = "▶";
-      txt.textContent = "استماع";
+      updateRadioBtn();
     }
   }
+
+  radioAudio.addEventListener('error', () => { if (radioWanted) advanceRadioStream(); });
+  radioAudio.addEventListener('stalled', () => {
+    clearRadioStallTimer();
+    radioStallTimer = setTimeout(() => { if (radioWanted) advanceRadioStream(); }, 8000);
+  });
+  ['playing', 'canplay', 'progress'].forEach(ev => radioAudio.addEventListener(ev, clearRadioStallTimer));
+  radioAudio.addEventListener('pause', clearRadioStallTimer);
 
   function switchQuranMode(mode) {
     const btnRead = document.getElementById("btn-mode-read");
@@ -1578,8 +1806,124 @@
     }
   }
 
+  // ===== وضع المصحف: مصوّر (المدينة) / نصّي (الرسم العثماني) — صفحة مشتركة 1..604 =====
+  const MUSHAF_IMAGE_URL = (p) => `https://raw.githubusercontent.com/Five-Prayers/quran-pages/main/quran_pages/${p}.png`;
+  let mushafMode = "image";
+  try { mushafMode = localStorage.getItem("mushaf_mode") || "image"; } catch(e) {}
+  if (mushafMode !== "text") mushafMode = "image";
+  let quranTextPages = null;
+  let quranBasmala = "";
+  let quranTextPromise = null;
+
+  function loadQuranText() {
+    if (quranTextPromise) return quranTextPromise;
+    quranTextPromise = fetch("/quran-uthmani.json")
+      .then(r => r.json())
+      .then(data => {
+        quranTextPages = {};
+        data.surahs.forEach(su => {
+          su.ayahs.forEach(a => {
+            (quranTextPages[a.p] = quranTextPages[a.p] || []).push({ s: su.n, n: a.n, t: a.t });
+          });
+        });
+        // البسملة تُؤخذ من نص البيانات نفسه (آية الفاتحة الأولى) لضمان تطابق الترميز حرفياً
+        quranBasmala = data.surahs[0].ayahs[0].t.replace(/^\ufeff/, "");
+        return quranTextPages;
+      });
+    return quranTextPromise;
+  }
+
+  function stripBasmalaPrefix(text) {
+    if (!quranBasmala) return null;
+    if (text.indexOf(quranBasmala) === 0) return text.slice(quranBasmala.length).replace(/^\s+/, "");
+    // صورة أخرى في البيانات (سورتا التين والقدر): شدّة زائدة بعد الباء
+    const variant = quranBasmala.charAt(0) + "\u0651" + quranBasmala.slice(1);
+    if (text.indexOf(variant) === 0) return text.slice(variant.length).replace(/^\s+/, "");
+    return null;
+  }
+
+  function applyMushafModeUI() {
+    const bI = document.getElementById("btn-mushaf-image");
+    const bT = document.getElementById("btn-mushaf-text");
+    if (bI) bI.classList.toggle("active", mushafMode === "image");
+    if (bT) bT.classList.toggle("active", mushafMode === "text");
+  }
+
+  function switchMushafMode(mode) {
+    mushafMode = (mode === "text") ? "text" : "image";
+    try { localStorage.setItem("mushaf_mode", mushafMode); } catch(e) {}
+    applyMushafModeUI();
+    showMushafPage(currentMushafPage);
+  }
+
+  function renderMushafTextPage(pageNum, isFallback) {
+    const textView = document.getElementById("mushaf-text-view");
+    const note = document.getElementById("mushaf-fallback-note");
+    const img = document.getElementById("mushaf-page-image");
+    const spinner = document.getElementById("mushaf-loading");
+    const stage = document.getElementById("mushaf-stage");
+    if (stage) stage.classList.add("text-mode");
+    img.style.display = "none";
+    note.style.display = isFallback ? "block" : "none";
+    textView.style.display = "block";
+    spinner.style.display = "flex";
+    textView.innerHTML = "";
+    loadQuranText().then(() => {
+      if (pageNum !== currentMushafPage) return;
+      spinner.style.display = "none";
+      const ayahs = (quranTextPages && quranTextPages[pageNum]) || [];
+      let html = "";
+      let i = 0;
+      let firstGroup = true;
+      while (i < ayahs.length) {
+        const s = ayahs[i].s;
+        const group = [];
+        while (i < ayahs.length && ayahs[i].s === s) { group.push(ayahs[i]); i++; }
+        if (group[0].n !== 1 && firstGroup) {
+          html += `<div class="mushaf-cont-label">سورة ${ALL_SURAHS[s - 1]} (تابع)</div>`;
+        }
+        const parts = [];
+        group.forEach((a, idx) => {
+          let t = a.t.replace(/^\ufeff/, "");
+          if (a.n === 1 && idx === 0) {
+            html += `<div class="surah-header-band">سُورَةُ ${ALL_SURAHS[s - 1]}</div>`;
+            if (s !== 1 && s !== 9) {
+              const rest = stripBasmalaPrefix(t);
+              html += `<div class="basmala-line">${quranBasmala}</div>`;
+              if (rest !== null) t = rest;
+            }
+          }
+          if (t) parts.push(`${t} <span class="ayah-end-mark">﴿${toArabicDigits(a.n)}﴾</span>`);
+        });
+        html += `<div class="uthmani-text">${parts.join(" ")}</div>`;
+        firstGroup = false;
+      }
+      textView.innerHTML = html || `<div class="mushaf-cont-label">لا توجد آيات في هذه الصفحة</div>`;
+    }).catch(() => {
+      if (pageNum !== currentMushafPage) return;
+      spinner.style.display = "none";
+      textView.innerHTML = `<div class="mushaf-cont-label">تعذّر تحميل نص المصحف — تحقق من الاتصال وحاول مرة أخرى</div>`;
+    });
+  }
+
+  // تقليب باللمس: سحب لليمين = الصفحة التالية، سحب لليسار = السابقة (اتجاه الكتاب العربي)
+  (function initMushafSwipe() {
+    const stage = document.getElementById("mushaf-stage");
+    if (!stage) return;
+    let swipeStartX = null;
+    stage.addEventListener("touchstart", (e) => { swipeStartX = e.changedTouches[0].clientX; }, { passive: true });
+    stage.addEventListener("touchend", (e) => {
+      if (swipeStartX === null) return;
+      const dx = e.changedTouches[0].clientX - swipeStartX;
+      swipeStartX = null;
+      if (Math.abs(dx) < 40) return;
+      if (dx > 0) nextMushafPage(); else prevMushafPage();
+    }, { passive: true });
+  })();
+
   // محرك مصحف المدينة المنورة الأصلي (عرض الصفحات المصورة الحقيقية)
   function initMushafPagesReader() {
+    applyMushafModeUI();
     renderSurahsListPages(ALL_SURAHS);
     
     // استعادة آخر صفحة تم حفظها
@@ -1594,15 +1938,16 @@
     showMushafPage(1);
   }
 
-  function showMushafPage(pageNum) {
+  function showMushafPage(pageNum, dir) {
     if (pageNum < 1) pageNum = 1;
     if (pageNum > 604) pageNum = 604;
     currentMushafPage = pageNum;
 
     const img = document.getElementById("mushaf-page-image");
-    img.style.opacity = "0.4";
-    img.src = `https://quran.ksu.edu.sa/png_pages/${pageNum}.png`;
-    img.onload = () => { img.style.opacity = "1"; };
+    const textView = document.getElementById("mushaf-text-view");
+    const note = document.getElementById("mushaf-fallback-note");
+    const spinner = document.getElementById("mushaf-loading");
+    const stage = document.getElementById("mushaf-stage");
 
     document.getElementById("input-page-num").value = pageNum;
     document.getElementById("mushaf-page-counter-badge").textContent = `صفحة ${toArabicDigits(pageNum)} من ٦٠٤`;
@@ -1610,24 +1955,56 @@
     // تمييز السورة المطابقة في القائمة
     updateActiveSurahCell(pageNum);
 
+    if (stage && dir) {
+      stage.classList.remove("mushaf-anim-next", "mushaf-anim-prev");
+      void stage.offsetWidth;
+      stage.classList.add(dir === "next" ? "mushaf-anim-next" : "mushaf-anim-prev");
+    }
+
+    if (mushafMode === "text") {
+      renderMushafTextPage(pageNum, false);
+      return;
+    }
+
+    // الوضع المصوّر
+    if (stage) stage.classList.remove("text-mode");
+    textView.style.display = "none";
+    note.style.display = "none";
+    img.style.display = "block";
+    img.style.opacity = "0.4";
+    spinner.style.display = "flex";
+    img.onload = () => {
+      if (pageNum !== currentMushafPage) return;
+      if (img.naturalWidth === 0) { if (img.onerror) img.onerror(); return; }
+      spinner.style.display = "none";
+      img.style.opacity = "1";
+    };
+    img.onerror = () => {
+      if (pageNum !== currentMushafPage) return;
+      spinner.style.display = "none";
+      renderMushafTextPage(pageNum, true);
+    };
+    img.src = MUSHAF_IMAGE_URL(pageNum);
+
     // تحميل مسبق للصفحة التالية والسابقة لتصفح فوري وسلس
     preloadMushafAdjacentPages(pageNum);
   }
 
   function preloadMushafAdjacentPages(p) {
-    if (p < 604) { const next = new Image(); next.src = `https://quran.ksu.edu.sa/png_pages/${p + 1}.png`; }
-    if (p > 1) { const prev = new Image(); prev.src = `https://quran.ksu.edu.sa/png_pages/${p - 1}.png`; }
+    if (mushafMode !== "image") return;
+    if (p < 604) { const next = new Image(); next.src = MUSHAF_IMAGE_URL(p + 1); }
+    if (p > 1) { const prev = new Image(); prev.src = MUSHAF_IMAGE_URL(p - 1); }
   }
 
   function prevMushafPage() {
     if (currentMushafPage > 1) {
-      showMushafPage(currentMushafPage - 1);
+      showMushafPage(currentMushafPage - 1, "prev");
     }
   }
 
   function nextMushafPage() {
     if (currentMushafPage < 604) {
-      showMushafPage(currentMushafPage + 1);
+      showMushafPage(currentMushafPage + 1, "next");
     }
   }
 
