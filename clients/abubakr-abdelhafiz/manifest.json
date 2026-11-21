@@ -1,0 +1,27 @@
+{
+  "name": "صدقة جارية - الحاج أبو بكر محمد عبد الحافظ",
+  "short_name": "أبو بكر",
+  "description": "صدقة جارية على روح المغفور له بإذن الله الحاج أبو بكر محمد عبد الحافظ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F7F5",
+  "theme_color": "#062D23",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "photo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "photo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
