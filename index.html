@@ -661,6 +661,10 @@
       border: 2px solid #C5A059;
       border-radius: 12px;
       padding: 6px;
+      touch-action: pan-y;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
       box-shadow: 0 4px 18px rgba(197, 160, 89, 0.15);
       position: relative;
       margin-bottom: 10px;
@@ -1823,7 +1827,9 @@
         quranTextPages = {};
         data.surahs.forEach(su => {
           su.ayahs.forEach(a => {
-            (quranTextPages[a.p] = quranTextPages[a.p] || []).push({ s: su.n, n: a.n, t: a.t });
+            // إزالة علامات تظهر كدوائر سوداء كبيرة في خط KFGQPC على الويب (صفر مدوّر وأخواته)
+            const clean = a.t.replace(/[\u06DF\u06E3\u06EB]/g, "");
+            (quranTextPages[a.p] = quranTextPages[a.p] || []).push({ s: su.n, n: a.n, t: clean });
           });
         });
         // البسملة تُؤخذ من نص البيانات نفسه (آية الفاتحة الأولى) لضمان تطابق الترميز حرفياً
