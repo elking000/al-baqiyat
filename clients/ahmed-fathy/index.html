@@ -925,7 +925,7 @@
         </div>
         <button id="radioToggleBtn" class="btn-gold" onclick="toggleRadio()">▶ تشغيل</button>
       </div>
-      <audio id="quranRadio" preload="none" src="https://stream.radiojar.com/8s5u5tpdtwzuv"></audio>
+      <audio id="quranRadio" preload="none"></audio>
     </section>
 
     <!-- القسم 1: المصحف الشريف -->
@@ -938,12 +938,12 @@
       <div class="quran-controls">
         <select id="surahSelect" onchange="loadSurah(this.value)"></select>
         <select id="reciterSelect" onchange="changeReciter()">
-          <option value="ar.alafasy">مشاري العفاسي</option>
-          <option value="ar.husary">محمود خليل الحصري</option>
-          <option value="ar.abdulbasitmurattal">عبد الباسط عبد الصمد</option>
-          <option value="ar.mahermuaiqly">ماهر المعيقلي</option>
-          <option value="ar.minshawi">محمد صديق المنشاوي</option>
-          <option value="ar.ahmedajamy">أحمد العجمي</option>
+          <option value="https://server8.mp3quran.net/afs/">مشاري العفاسي</option>
+          <option value="https://server13.mp3quran.net/husr/">محمود خليل الحصري</option>
+          <option value="https://server7.mp3quran.net/basit/">عبد الباسط عبد الصمد</option>
+          <option value="https://server12.mp3quran.net/maher/">ماهر المعيقلي</option>
+          <option value="https://cdn.mp3quran.net/audio/muhammad-minshawi/r1/">محمد صديق المنشاوي</option>
+          <option value="https://cdn.mp3quran.net/audio/ahmad-ajmi/r1/">أحمد العجمي</option>
         </select>
       </div>
 
@@ -1224,9 +1224,9 @@
 
     /* 3. مشغل التلاوة وإذاعة القرآن الكريم */
     function updateAudioSource(surahNum) {
-      const reciter = document.getElementById('reciterSelect').value;
+      const base = document.getElementById('reciterSelect').value;
       const audio = document.getElementById('surahAudio');
-      audio.src = `https://cdn.islamic.network/quran/audio-surah/128/${reciter}/${surahNum}.mp3`;
+      audio.src = `${base}${String(surahNum).padStart(3, '0')}.mp3`;
     }
 
     function changeReciter() {
@@ -1234,17 +1234,105 @@
       document.getElementById('surahAudio').play();
     }
 
-    function toggleRadio() {
-      const radio = document.getElementById('quranRadio');
-      const btn = document.getElementById('radioToggleBtn');
-      if (radio.paused) {
-        radio.play();
-        btn.textContent = '⏸ إيقاف';
+    /* إذاعة القرآن من القاهرة: بثها الرسمي (RadioJar) يعمل بـ HTTP فقط فيُحجب على
+       المواقع الآمنة HTTPS، لذا تُبث عبر وسيط HLS آمن لنفس المحطة، والاحتياطي
+       إذاعات قرآنية موثقة — مع تبديل تلقائي عند أي تعثر. */
+    const RADIO_STREAMS = [
+      "https://service.webvideocore.net/CL1olYogIrDWvwqiIKK7eCxOS4PStqG9DuEjAr2ZjZQtvS3d4y9r0cvRhvS17SGN/a_7a4vuubc6mo8.m3u8",
+      "https://backup.qurango.net/radio/mix",
+      "https://backup.qurango.net/radio/maher"
+    ];
+    const radioEl = document.getElementById('quranRadio');
+    const radioBtn = document.getElementById('radioToggleBtn');
+    let radioStreamIndex = 0;
+    let radioWanted = false;
+    let radioStallTimer = null;
+    let radioHls = null;
+    let radioHlsAttaching = false;
+    let hlsLibPromise = null;
+
+    function updateRadioBtn() {
+      radioBtn.textContent = radioWanted ? '⏸ إيقاف' : '▶ تشغيل';
+    }
+    function clearRadioStallTimer() {
+      if (radioStallTimer) { clearTimeout(radioStallTimer); radioStallTimer = null; }
+    }
+    function loadHlsLib() {
+      if (window.Hls) return Promise.resolve(true);
+      if (hlsLibPromise) return hlsLibPromise;
+      hlsLibPromise = new Promise(res => {
+        const s = document.createElement('script');
+        s.src = "https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js";
+        s.onload = () => res(!!window.Hls);
+        s.onerror = () => res(false);
+        document.head.appendChild(s);
+      });
+      return hlsLibPromise;
+    }
+    function destroyRadioHls() {
+      if (radioHls) { try { radioHls.destroy(); } catch(e) {} radioHls = null; }
+    }
+    function setRadioStream(index) {
+      radioStreamIndex = index;
+      const url = RADIO_STREAMS[index];
+      destroyRadioHls();
+      if (url.indexOf('.m3u8') !== -1) {
+        if (radioEl.canPlayType('application/vnd.apple.mpegurl')) {
+          radioEl.src = url;
+          return;
+        }
+        radioHlsAttaching = true;
+        loadHlsLib().then(ok => {
+          radioHlsAttaching = false;
+          if (radioStreamIndex !== index) return;
+          if (!ok || !window.Hls || !Hls.isSupported()) { advanceRadioStream(); return; }
+          radioHls = new Hls({ enableWorker: true });
+          radioHls.loadSource(url);
+          radioHls.attachMedia(radioEl);
+          radioHls.on(Hls.Events.ERROR, (ev, data) => {
+            if (data && data.fatal && radioWanted) advanceRadioStream();
+          });
+          if (radioWanted) radioEl.play().then(updateRadioBtn).catch(() => {});
+        });
+        return;
+      }
+      radioEl.src = url;
+    }
+    function advanceRadioStream() {
+      clearRadioStallTimer();
+      if (radioStreamIndex < RADIO_STREAMS.length - 1) {
+        setRadioStream(radioStreamIndex + 1);
+        if (radioWanted) {
+          radioEl.play().then(updateRadioBtn).catch(() => advanceRadioStream());
+        }
       } else {
-        radio.pause();
-        btn.textContent = '▶ تشغيل';
+        radioWanted = false;
+        updateRadioBtn();
+        alert('تعذّر الاتصال ببث الإذاعة الآن، يرجى المحاولة بعد قليل.');
       }
     }
+    function toggleRadio() {
+      if (radioEl.paused) {
+        const surahAudio = document.getElementById('surahAudio');
+        if (surahAudio) surahAudio.pause();
+        radioWanted = true;
+        if (!radioEl.src && !radioHlsAttaching && !radioHls) setRadioStream(radioStreamIndex);
+        if (radioHlsAttaching) { updateRadioBtn(); return; }
+        radioEl.play().then(updateRadioBtn).catch(() => advanceRadioStream());
+      } else {
+        radioWanted = false;
+        clearRadioStallTimer();
+        radioEl.pause();
+        updateRadioBtn();
+      }
+    }
+    radioEl.addEventListener('error', () => { if (radioWanted) advanceRadioStream(); });
+    radioEl.addEventListener('stalled', () => {
+      clearRadioStallTimer();
+      radioStallTimer = setTimeout(() => { if (radioWanted) advanceRadioStream(); }, 8000);
+    });
+    ['playing', 'canplay', 'progress'].forEach(ev => radioEl.addEventListener(ev, clearRadioStallTimer));
+    radioEl.addEventListener('pause', clearRadioStallTimer);
 
     /* 4. السبحة الإلكترونية */
     let tasbihData = JSON.parse(localStorage.getItem('ahmed_tasbih_counts') || '{}');
