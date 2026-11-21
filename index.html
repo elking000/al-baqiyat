@@ -513,6 +513,49 @@
       margin-bottom: 10px;
       gap: 6px;
     }
+    .mushaf-meta-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .juz-badge {
+      font-size: 12px;
+      font-weight: 800;
+      color: #8a6d1f;
+      background: #F4EAD4;
+      border: 1px solid var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .juz-select {
+      padding: 5px 8px;
+      border: 1.5px solid #D5DDD8;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #fff;
+      color: var(--primary);
+      max-width: 55%;
+    }
+    .btn-notify-toggle {
+      width: 100%;
+      padding: 11px;
+      margin-bottom: 6px;
+      border-radius: 12px;
+      background: transparent;
+      border: 1.5px solid var(--accent);
+      color: #8a6d1f;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .btn-notify-toggle:active { transform: scale(0.98); }
+    .btn-notify-toggle.on { background: var(--accent); color: #231a02; }
+    .notify-hint { font-size: 11px; color: var(--text-muted); text-align: center; margin: 0 0 12px; }
     .btn-bookmark-action {
       background: #F4EAD4;
       border: 1px solid var(--accent);
@@ -993,6 +1036,9 @@
         <button type="button" class="btn-tasbeeh-reset" id="btn-tasbeeh-reset" onclick="resetTasbeeh()">↺ تصفير العداد</button>
       </div>
 
+      <button type="button" id="btn-notify-toggle" class="btn-notify-toggle" onclick="togglePrayerNotifications()">🔔 فعّل إشعارات الدعاء عند كل صلاة</button>
+      <p class="notify-hint">يصلك تذكير عند كل صلاة بالدعاء للفقيد بالرحمة والمغفرة (مواقيت القاهرة)</p>
+
       <!-- فئات الأدعية الموسعة -->
       <div class="dua-categories-nav">
         <button class="dua-cat-btn active" onclick="switchDuaCategory(this, 'cat-deceased')">🤲 أدعية الفقيد</button>
@@ -1049,6 +1095,13 @@
               <input type="number" id="input-page-num" class="page-input-box" min="1" max="604" value="1" onchange="jumpToPageInput(this.value)">
               <button type="button" class="btn-bookmark-action" onclick="setMushafBookmarkCurrent()" title="حفظ علامة هنا">📌 حفظ</button>
             </div>
+          </div>
+
+          <div class="mushaf-meta-line">
+            <span class="juz-badge" id="mushaf-juz-badge">الجزء ١</span>
+            <select id="juz-select" class="juz-select" onchange="jumpToJuz(this.value)">
+              <option value="">الانتقال إلى جزء…</option>
+            </select>
           </div>
 
           <!-- شريط تقليب الصفحات -->
@@ -1615,6 +1668,14 @@
       // فحص أوقات الصلاة لعرض التذكير الذكي
       checkPrayerReminderTime(person, isFem);
 
+      // إشعارات الدعاء عند كل صلاة: تذكّر صاحب الصفحة وابدأ الجدولة إن كانت مفعّلة
+      notifyPerson = { name: person.name, slug: person.slug, fem: !!isFem };
+      if (prayerNotifyEnabled()) {
+        try { localStorage.setItem("prayer_notify_person", JSON.stringify(notifyPerson)); } catch(e) {}
+        startPrayerScheduler();
+      }
+      updateNotifyBtn();
+
     } catch(err) {
       console.error("Error in buildMemorialUI:", err);
     } finally {
@@ -2001,6 +2062,138 @@
     });
   }
 
+  // ===== الأجزاء والأحزاب (بيانات مصحف المدينة) =====
+  const JUZ_STARTS = [1,22,42,62,82,102,121,142,162,182,201,222,242,262,282,302,322,342,362,382,402,422,442,462,482,502,522,542,562,582];
+  let pagesMeta = null;
+  function loadPagesMeta() {
+    if (pagesMeta) return Promise.resolve(pagesMeta);
+    return fetch("/pages-meta.json").then(r => r.json()).then(d => { pagesMeta = d; return d; }).catch(() => null);
+  }
+  function juzOfPage(pageNum) {
+    let j = 1;
+    for (let i = 0; i < JUZ_STARTS.length; i++) { if (pageNum >= JUZ_STARTS[i]) j = i + 1; }
+    return j;
+  }
+  function updateMushafMeta(pageNum) {
+    const badge = document.getElementById("mushaf-juz-badge");
+    if (!badge) return;
+    const juz = (pagesMeta && pagesMeta[pageNum]) ? pagesMeta[pageNum].j : juzOfPage(pageNum);
+    let txt = `الجزء ${toArabicDigits(juz)}`;
+    if (pagesMeta && pagesMeta[pageNum] && pagesMeta[pageNum].h) txt += ` • الحزب ${toArabicDigits(pagesMeta[pageNum].h)}`;
+    badge.textContent = txt;
+  }
+  function fillJuzSelect() {
+    const sel = document.getElementById("juz-select");
+    if (!sel || sel.options.length > 1) return;
+    JUZ_STARTS.forEach((start, i) => {
+      const opt = document.createElement("option");
+      opt.value = start;
+      opt.textContent = `الجزء ${toArabicDigits(i + 1)} — يبدأ ص ${toArabicDigits(start)}`;
+      sel.appendChild(opt);
+    });
+  }
+  function jumpToJuz(val) {
+    const p = parseInt(val, 10);
+    if (!isNaN(p)) showMushafPage(p);
+    const sel = document.getElementById("juz-select");
+    if (sel) sel.value = "";
+  }
+
+  // ===== إشعارات التذكير بالدعاء عند كل صلاة (مواقيت حقيقية — القاهرة) =====
+  const PRAYERS_META = [
+    { key: "Fajr", name: "الفجر" },
+    { key: "Dhuhr", name: "الظهر" },
+    { key: "Asr", name: "العصر" },
+    { key: "Maghrib", name: "المغرب" },
+    { key: "Isha", name: "العشاء" }
+  ];
+  let notifyPerson = null;
+  function prayerNotifyEnabled() {
+    try { return localStorage.getItem("prayer_notify") === "1"; } catch(e) { return false; }
+  }
+  function updateNotifyBtn() {
+    const b = document.getElementById("btn-notify-toggle");
+    if (!b) return;
+    const on = prayerNotifyEnabled() && ("Notification" in window) && Notification.permission === "granted";
+    b.textContent = on ? "🔔 إشعارات الدعاء مفعّلة ✓ (اضغط للإيقاف)" : "🔔 فعّل إشعارات الدعاء عند كل صلاة";
+    b.classList.toggle("on", !!on);
+  }
+  async function togglePrayerNotifications() {
+    if (!("Notification" in window)) { alert("هذا المتصفح لا يدعم الإشعارات"); return; }
+    if (prayerNotifyEnabled()) {
+      try { localStorage.setItem("prayer_notify", "0"); } catch(e) {}
+      updateNotifyBtn();
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if (perm === "granted") {
+      try {
+        localStorage.setItem("prayer_notify", "1");
+        if (notifyPerson) localStorage.setItem("prayer_notify_person", JSON.stringify(notifyPerson));
+      } catch(e) {}
+      startPrayerScheduler();
+      updateNotifyBtn();
+      firePrayerNotification("الاختبار", true);
+    } else {
+      alert("لم يتم منح إذن الإشعارات — يمكنك تفعيله من إعدادات المتصفح لهذا الموقع");
+    }
+  }
+  function getPrayerTimes() {
+    const today = new Date();
+    const dayKey = "ptimes_" + today.toISOString().slice(0, 10);
+    try { const c = localStorage.getItem(dayKey); if (c) return Promise.resolve(JSON.parse(c)); } catch(e) {}
+    const dd = String(today.getDate()).padStart(2, "0");
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const yy = today.getFullYear();
+    return fetch(`https://api.aladhan.com/v1/timingsByCity/${dd}-${mm}-${yy}?city=Cairo&country=Egypt&method=5`)
+      .then(r => r.json())
+      .then(j => {
+        const t = (j && j.data && j.data.timings) || {};
+        const out = {};
+        PRAYERS_META.forEach(p => { out[p.key] = String(t[p.key] || "").slice(0, 5); });
+        try { localStorage.setItem(dayKey, JSON.stringify(out)); } catch(e) {}
+        return out;
+      });
+  }
+  let prayerSchedulerStarted = false;
+  function startPrayerScheduler() {
+    if (prayerSchedulerStarted) return;
+    prayerSchedulerStarted = true;
+    const tick = () => {
+      if (!prayerNotifyEnabled()) return;
+      getPrayerTimes().then(times => {
+        const now = new Date();
+        const hm = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+        const todayStr = now.toISOString().slice(0, 10);
+        PRAYERS_META.forEach(p => {
+          if (times[p.key] && times[p.key] === hm) {
+            const k = `notified_${p.key}_${todayStr}`;
+            try { if (localStorage.getItem(k)) return; localStorage.setItem(k, "1"); } catch(e) {}
+            firePrayerNotification(p.name, false);
+          }
+        });
+      }).catch(() => {});
+    };
+    tick();
+    setInterval(tick, 30000);
+  }
+  function firePrayerNotification(prayerName, isTest) {
+    let person = notifyPerson;
+    if (!person) { try { person = JSON.parse(localStorage.getItem("prayer_notify_person") || "null"); } catch(e) {} }
+    const title = isTest ? "🔔 تم تفعيل تذكير الدعاء" : `🕌 حان الآن وقت صلاة ${prayerName}`;
+    const body = person && person.name
+      ? `لا تنسَ الدعاء لـ (${person.name}) بالرحمة والمغفرة في هذا الوقت المبارك 🤲`
+      : "لا تنسَ الدعاء لأحبابك الذين رحلوا بالرحمة والمغفرة 🤲";
+    const opts = { body, icon: "/icon-192.png", badge: "/icon-192.png", tag: "prayer-reminder", dir: "rtl", lang: "ar" };
+    if (("Notification" in window) && Notification.permission === "granted") {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.ready.then(reg => reg.showNotification(title, opts)).catch(() => { try { new Notification(title, opts); } catch(e) {} });
+      } else {
+        try { new Notification(title, opts); } catch(e) {}
+      }
+    }
+  }
+
   // تقليب باللمس: سحب لليمين = الصفحة التالية، سحب لليسار = السابقة (اتجاه الكتاب العربي)
   (function initMushafSwipe() {
     const stage = document.getElementById("mushaf-stage");
@@ -2019,6 +2212,8 @@
   // محرك مصحف المدينة المنورة الأصلي (عرض الصفحات المصورة الحقيقية)
   function initMushafPagesReader() {
     applyMushafModeUI();
+    fillJuzSelect();
+    loadPagesMeta().then(() => updateMushafMeta(currentMushafPage));
     renderSurahsListPages(ALL_SURAHS);
     
     // استعادة آخر صفحة تم حفظها
@@ -2049,6 +2244,7 @@
 
     // تمييز السورة المطابقة في القائمة
     updateActiveSurahCell(pageNum);
+    updateMushafMeta(pageNum);
 
     if (stage && dir) {
       stage.classList.remove("mushaf-anim-next", "mushaf-anim-prev");
