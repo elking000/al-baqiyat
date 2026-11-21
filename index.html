@@ -642,10 +642,32 @@
     }
     .qline {
       font-family: 'UthmanicHafs', 'Amiri', serif;
-      font-size: 21px;
+      font-size: 30px;
       line-height: 1.9;
       color: #0B3D2E;
       text-align: right;
+      white-space: nowrap;
+    }
+    .page-sheet-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-family: 'UthmanicHafs', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #7c5c10;
+      padding: 2px 2px 8px;
+      border-bottom: 1.5px solid #d9c98f;
+      margin-bottom: 10px;
+    }
+    .page-sheet-foot {
+      text-align: center;
+      font-family: 'UthmanicHafs', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #7c5c10;
+      padding-top: 10px;
     }
     .ayah-medal {
       display: inline-flex;
@@ -1264,8 +1286,30 @@
 <script>
   const BASE_URL = "https://al-baqiyat.site";
 
+  // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
+  const APP_VERSION = "10";
+  (function enforceAppVersion() {
+    let old = null;
+    try { old = localStorage.getItem("app_ver"); } catch(e) {}
+    if (old === APP_VERSION) return;
+    try { localStorage.setItem("app_ver", APP_VERSION); } catch(e) {}
+    if (old === null) return; // أول زيارة على هذا الجهاز: لا مسح ولا إعادة تحميل
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).catch(() => {});
+    }
+    if (window.caches) {
+      caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k)))).catch(() => {});
+    }
+    let reloaded = false;
+    try { reloaded = sessionStorage.getItem("app_ver_reloaded") === APP_VERSION; } catch(e) {}
+    if (!reloaded) {
+      try { sessionStorage.setItem("app_ver_reloaded", APP_VERSION); } catch(e) {}
+      setTimeout(() => location.reload(), 1200);
+    }
+  })();
+
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
+    navigator.serviceWorker.register('/sw.js').then(reg => { if (reg) reg.update(); }).catch(() => {});
   }
 
   // حل الآيفون: لا نضيف المانيفست في أجهزة iOS لكي يثبت سفاري الرابط المباشر للمتوفى
@@ -1984,6 +2028,7 @@
       btnListen.classList.remove("active");
       secRead.style.display = "block";
       secListen.style.display = "none";
+      setTimeout(fitTextPage, 80);
     } else {
       btnListen.classList.add("active");
       btnRead.classList.remove("active");
@@ -2021,6 +2066,31 @@
     return cur;
   }
 
+  // ضبط حجم خط الصفحة النصية تلقائياً: يُقاس أطول سطر ويُصغّر الخط حتى لا يلتف أي سطر أبداً (مثل صفحة المصحف المطبوعة)
+  let fitRetryCount = 0;
+  function fitTextPage() {
+    const view = document.getElementById("mushaf-text-view");
+    if (!view || view.style.display === "none") return;
+    const frame = view.querySelector(".mushaf-text-frame");
+    const lines = view.querySelectorAll(".qline");
+    if (!frame || !lines.length) return;
+    const avail = frame.clientWidth - 18;
+    if (avail < 80) { // القسم مخفي بعد — أعد المحاولة حتى يظهر
+      if (fitRetryCount < 12) { fitRetryCount++; setTimeout(fitTextPage, 300); }
+      return;
+    }
+    fitRetryCount = 0;
+    lines.forEach(l => { l.style.fontSize = "30px"; });
+    let maxW = 0;
+    lines.forEach(l => { maxW = Math.max(maxW, l.scrollWidth); });
+    if (maxW > 0) {
+      let size = Math.floor(30 * (avail / maxW) * 0.98);
+      size = Math.max(12, Math.min(30, size));
+      lines.forEach(l => { l.style.fontSize = size + "px"; });
+    }
+  }
+  window.addEventListener("resize", () => { fitTextPage(); });
+
   function renderMushafTextPage(pageNum, isFallback) {
     const textView = document.getElementById("mushaf-text-view");
     const note = document.getElementById("mushaf-fallback-note");
@@ -2041,10 +2111,9 @@
       const headsAt = {};
       (pg.heads || []).forEach(h => { headsAt[h.at] = h.s; });
       let html = `<div class="mushaf-text-frame">`;
-      const startsAtTop = (pg.heads || []).some(h => h.at === 0);
-      if (!startsAtTop && pageNum > 1) {
-        html += `<div class="mushaf-cont-label">سورة ${ALL_SURAHS[surahInProgress(data, pageNum) - 1]} (تابع)</div>`;
-      }
+      const headSurah = (pg.heads && pg.heads.length) ? pg.heads[0].s : surahInProgress(data, pageNum);
+      const juzLbl = (pagesMeta && pagesMeta[pageNum]) ? pagesMeta[pageNum].j : juzOfPage(pageNum);
+      html += `<div class="page-sheet-head"><span>سُورَةُ ${ALL_SURAHS[headSurah - 1]}</span><span>الجزء ${toArabicDigits(juzLbl)}</span></div>`;
       pg.lines.forEach((line, idx) => {
         if (headsAt[idx] !== undefined) {
           const s = headsAt[idx];
@@ -2053,8 +2122,10 @@
         }
         html += `<div class="qline">${medalizeLine(line)}</div>`;
       });
-      html += `</div>`;
+      html += `<div class="page-sheet-foot">${toArabicDigits(pageNum)}</div></div>`;
       textView.innerHTML = html;
+      requestAnimationFrame(() => fitTextPage());
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTextPage());
     }).catch(() => {
       if (pageNum !== currentMushafPage) return;
       spinner.style.display = "none";
