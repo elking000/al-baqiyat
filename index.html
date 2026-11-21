@@ -599,11 +599,10 @@
     }
     .qline {
       font-family: 'UthmanicHafs', 'Amiri', serif;
-      font-size: 19.5px;
-      line-height: 1.85;
+      font-size: 21px;
+      line-height: 1.9;
       color: #0B3D2E;
-      text-align: justify;
-      text-align-last: right;
+      text-align: right;
     }
     .ayah-medal {
       display: inline-flex;
@@ -1949,6 +1948,7 @@
   }
 
   function medalizeLine(text) {
+    text = text.replace(/ـ/g, "");
     return text.replace(/\uE000(\d+)\uE001/g, (m, n) => `<span class="ayah-medal">${toArabicDigits(parseInt(n, 10))}</span>`);
   }
 

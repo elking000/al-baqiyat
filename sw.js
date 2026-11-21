@@ -1,5 +1,5 @@
-const CACHE_NAME = 'baqiyat-v7';
-const RUNTIME_CACHE = 'baqiyat-runtime-v6';
+const CACHE_NAME = 'baqiyat-v8';
+const RUNTIME_CACHE = 'baqiyat-runtime-v7';
 const PRECACHE = [
   '/',
   '/index.html',
