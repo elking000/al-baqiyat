@@ -1,5 +1,5 @@
-const CACHE_NAME = 'baqiyat-v12';
-const RUNTIME_CACHE = 'baqiyat-runtime-v11';
+const CACHE_NAME = 'baqiyat-v15';
+const RUNTIME_CACHE = 'baqiyat-runtime-v12';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -36,6 +36,28 @@ self.addEventListener('fetch', (e) => {
   // بيانات الشيت وApps Script: شبكة فقط دائماً — لا تُخزَّن لتبقى بيانات الصفحات ودفتر العزاء حية
   if (url.hostname === 'docs.google.com' || url.hostname === 'script.google.com') {
     e.respondWith(fetch(e.request));
+    return;
+  }
+
+  // مانيفست ديناميكي: التطبيق المثبت من صفحة فقيد يفتح على نفس الصفحة مباشرة (إصلاح آيفون)
+  if (url.origin === self.location.origin && url.pathname === '/manifest.webmanifest') {
+    const mSlug = url.searchParams.get('page') || '';
+    const dynManifest = {
+      name: mSlug ? 'صدقة جارية' : 'منصة الباقيات',
+      short_name: mSlug ? 'صدقة جارية' : 'الباقيات',
+      id: mSlug ? ('/?page=' + encodeURIComponent(mSlug)) : '/',
+      start_url: mSlug ? ('/?page=' + encodeURIComponent(mSlug)) : '/',
+      scope: '/',
+      display: 'standalone',
+      background_color: '#f8f9fa',
+      theme_color: '#0f4c3a',
+      orientation: 'portrait',
+      icons: [
+        { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+        { src: '/icon-512.png', sizes: '512x512', type: 'image/png' }
+      ]
+    };
+    e.respondWith(new Response(JSON.stringify(dynManifest), { headers: { 'Content-Type': 'application/manifest+json; charset=utf-8' } }));
     return;
   }
 

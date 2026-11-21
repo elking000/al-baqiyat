@@ -33,8 +33,10 @@
             { src: window.location.origin + "/icon-512.png", sizes: "512x512", type: "image/png" }
           ]
         };
-        var blob = new Blob([JSON.stringify(dynManifest)], { type: "application/json" });
-        document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(blob);
+        // مانيفست حقيقي يولّده الـ Service Worker لكل صفحة فقيد (مانيفست البلوب لا يقرأه آيفون فيرجع لملف ثابت خاطئ)
+        var mSlug = "";
+        try { mSlug = new URLSearchParams(window.location.search).get("page") || ""; } catch (e) {}
+        document.querySelector('link[rel="manifest"]').href = "/manifest.webmanifest" + (mSlug ? ("?page=" + encodeURIComponent(mSlug)) : "");
       } catch (e) {}
     })();
   </script>
@@ -962,7 +964,7 @@
 
   <div id="loader">
     <div class="spinner-ring"></div>
-    <p style="font-weight:700;">جارٍ فتح صفحة الصدقة الجارية...</p>
+    <p id="loader-text" style="font-weight:700;">جارٍ فتح صفحة الصدقة الجارية...</p>
   </div>
 
   <!-- الصفحة الرئيسية للمنصة -->
@@ -981,6 +983,15 @@
 
     <button type="button" class="btn-main-action" onclick="openDirectWhatsApp()">أنشئ صفحة صدقة جارية الآن 🤍</button>
     <footer class="site-footer">الباقيات &copy; 2026 - لكل لحظة أثر</footer>
+  </section>
+
+  <!-- شاشة عدم العثور على الصفحة -->
+  <section id="notfound-view" style="display:none; flex-direction:column; align-items:center; text-align:center; padding:48px 22px; gap:10px;">
+    <img src="/logo.png" alt="شعار منصة الباقيات" class="badge-logo-img">
+    <h2 style="margin:6px 0 0; font-size:21px;">لم نعثر على هذه الصفحة 🤍</h2>
+    <p style="color:var(--text-muted); font-size:14px; line-height:2; max-width:420px; margin:0;">قد يكون الرابط غير مكتمل، أو الصفحة أُنشئت منذ لحظات ولم تظهر بعد. جرّب إعادة المحاولة، وإن استمرت المشكلة تأكد من نسخ الرابط كاملاً كما وصلك.</p>
+    <button type="button" class="btn-main-action" style="max-width:320px;" onclick="location.reload()">إعادة المحاولة 🔄</button>
+    <button type="button" onclick="window.location.href='/'" style="background:none; border:none; color:var(--text-muted); font-size:13.5px; cursor:pointer; text-decoration:underline; padding:6px;">الذهاب إلى الصفحة الرئيسية للمنصة</button>
   </section>
 
   <!-- بروفايل صفحة المتوفى -->
@@ -1268,7 +1279,9 @@
     <div class="modal-icon-header">📱</div>
     <h3 class="modal-title">تثبيت الصفحة على الموبايل</h3>
     <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">لفتح صفحة الصدقة الجارية كأيقونة تطبيق سريعة من شاشة هاتفك الرئيسية في أي وقت:</p>
-    
+
+    <div id="inapp-warning" style="display:none; background:#fdf3e3; border:1px solid #e8c87a; color:#7a5b12; border-radius:12px; padding:10px 12px; font-size:12.5px; line-height:1.9; margin-bottom:12px; text-align:right;"></div>
+
     <div id="ios-instruction" style="display:none;">
       <div class="modal-instruction-step">1️⃣ اضغط على زر <strong>المشاركة (Share ⎋)</strong> أسفل شاشة سفاري.</div>
       <div class="modal-instruction-step">2️⃣ مرر للأسفل واضغط على <strong>"إضافة إلى الشاشة الرئيسية" (Add to Home Screen ➕)</strong>.</div>
@@ -1287,7 +1300,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "12";
+  const APP_VERSION = "15";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -1490,7 +1503,8 @@
 
   const params = new URLSearchParams(window.location.search);
   const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
-  const rawPageParam = params.get("page") || params.get("slug") || path || "";
+  const safePath = (path === "index.html" || path === "index") ? "" : path;
+  const rawPageParam = params.get("page") || params.get("slug") || safePath || "";
   const pageSlug = cleanArabicSlug(rawPageParam);
 
   try {
@@ -1500,6 +1514,7 @@
   } catch(e) {}
 
   let currentPerson = null;
+  let sheetLoadRetries = 0;
   let activeDhikrName = "اللهم اغفر له وارحمه";
   let tasbeehStore = {};
   let tasbeehStorageKey = "";
@@ -1582,9 +1597,15 @@
           document.getElementById("deceased-view").style.display = "none";
           alert("هذه الصفحة لم تعد متوفرة أو تم إيقافها من قِبل إدارة المنصة.");
           window.location.replace("/");
+        } else if (sheetLoadRetries < 2) {
+          // إعادة محاولة تلقائية: الصفحة قد تكون أُنشئت للتو أو حدث بطء مؤقت عند جوجل
+          sheetLoadRetries++;
+          const lt = document.getElementById("loader-text");
+          if (lt) lt.textContent = "جارٍ البحث عن الصفحة... لحظات من فضلكم";
+          document.getElementById("loader").style.display = "flex";
+          setTimeout(() => fetchGoogleSheetData(targetSlug), 3500);
         } else {
-          alert("لم يتم العثور على الصفحة المطلوبة، يرجى التأكد من صحة الرابط.");
-          document.getElementById("home-view").style.display = "flex";
+          document.getElementById("notfound-view").style.display = "flex";
         }
       }
     };
@@ -1617,18 +1638,28 @@
     try {
       currentPerson = person;
       document.title = `صدقة جارية لروح ${person.name} | الباقيات`;
+      // اسم أيقونة الشاشة الرئيسية على آيفون يصبح اسم الفقيد نفسه
+      const appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (appleTitleMeta && person.name) appleTitleMeta.setAttribute('content', person.name);
 
       document.getElementById("d-name").textContent = person.name;
       document.getElementById("d-title").textContent = person.title;
       document.getElementById("d-photo").src = person.photo;
+      // الكشف الدقيق عن نوع الصفحة (متوفى / متوفية / مجموعة) لضبط صيغ الأدعية
+      const isGroup = !!(person.title && (person.title.includes("لهم") || person.title.includes("المرحومون") || person.title.includes("المرحومين")));
+      const isFem = !isGroup && ((person.title && (person.title.includes("لها") || person.title.includes("المرحومة") || person.title.includes("الفقيدة"))) ||
+                    (person.name && (person.name.includes("الحاجة") || person.name.includes("الحاجه") || person.name.includes("فاطمة") || person.name.includes("مريم") || person.name.includes("منى") || person.name.includes("هدى"))));
+
+      // الدعاء المخصص الافتراضي بصيغة النوع الصحيحة عند عدم كتابة دعاء خاص
+      if (person.custom_dua === "اللهم اجعل عن يمينه نوراً وعن شماله نوراً وافسح له في قبره") {
+        if (isGroup) person.custom_dua = "اللهم اجعل عن أيمانهم نوراً وعن شمائلهم نوراً وافسح لهم في قبورهم";
+        else if (isFem) person.custom_dua = "اللهم اجعل عن يمينها نوراً وعن شمالها نوراً وافسح لها في قبرها";
+      }
+
       document.getElementById("d-custom-dua").textContent = `"${person.custom_dua}"`;
 
-      // الكشف الدقيق عن جنس المتوفى لضبط التذكير والتأنيث
-      const isFem = (person.title && (person.title.includes("لها") || person.title.includes("المرحومة") || person.title.includes("الفقيدة"))) ||
-                    (person.name && (person.name.includes("الحاجة") || person.name.includes("الحاجه") || person.name.includes("فاطمة") || person.name.includes("مريم") || person.name.includes("منى") || person.name.includes("هدى")));
-
       // تصحيح "رحل / رحلت"
-      const verb = isFem ? "رحلت" : "رحل";
+      const verb = isGroup ? "رحلوا" : (isFem ? "رحلت" : "رحل");
 
       if (person && person.death_date) {
         const raw = String(person.death_date).trim();
@@ -1692,7 +1723,7 @@
         if (el) el.textContent = "نسألكم الدعاء بالرحمة والمغفرة";
       }
 
-      const dhikrTxt = isFem ? "اللهم اغفر لها وارحمها" : "اللهم اغفر له وارحمه";
+      const dhikrTxt = isGroup ? "اللهم اغفر لهم وارحمهم" : (isFem ? "اللهم اغفر لها وارحمها" : "اللهم اغفر له وارحمه");
       activeDhikrName = dhikrTxt;
       const firstPill = document.querySelector('.dhikr-slider .dhikr-pill');
       if (firstPill) {
@@ -1702,7 +1733,7 @@
       const tasbeehLbl = document.getElementById("tasbeeh-label");
       if (tasbeehLbl) tasbeehLbl.textContent = dhikrTxt;
 
-      renderDeceasedDuas(person, isFem);
+      renderDeceasedDuas(person, isFem, isGroup);
     
       const cleanUrl = `${BASE_URL}/?page=${encodeURIComponent(person.slug)}`;
       document.getElementById("qr-element").src = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=" + encodeURIComponent(cleanUrl);
@@ -1793,12 +1824,27 @@
     if (prayerTabBtn) activateTab(prayerTabBtn, 'pane-prayers');
   }
 
-  function renderDeceasedDuas(person, isFem) {
+  function renderDeceasedDuas(person, isFem, isGroup) {
     const box = document.getElementById("cat-deceased");
     box.innerHTML = "";
     
     let list = [];
-    if (isFem) {
+    if (isGroup) {
+      list = [
+        { text: `اللهم اغفر لـ (${person.name}) وارحمهم، وعافهم واعف عنهم، وأكرم نزلهم ووسّع مدخلهم، واغسلهم بالماء والثلج والبرد، ونقِّهم من الذنوب والخطايا كما ينقى الثوب الأبيض من الدنس.`, badge: "دعاء مأثور" },
+        { text: `اللهم اجعل قبور (${person.name}) روضة من رياض الجنة، ولا تجعلها حفراً من حفر النار، اللهم افسح لهم في قبورهم مد أبصارهم، وافرش قبورهم من فراش الجنة.`, badge: "دعاء القبر" },
+        { text: `اللهم إن (${person.name}) في ذمتك وحبل جوارك، فقِهم فتنة القبر وعذاب النار، وأنت أهل الوفاء والحق، فاغفر لهم وارحمهم إنك أنت الغفور الرحيم.`, badge: "دعاء الرحمة" },
+        { text: `اللهم يمِّن كتبهم، ويسِّر حسابهم، وثقِّل بالحسنات موازينهم، وثبِّت على الصراط أقدامهم، وأسكنهم في أعلى الجنات بجوار حبيبك ومصطفاك صلى الله عليه وسلم.`, badge: "دعاء الحساب" },
+        { text: `اللهم أنزل الصبر والسكينة على قلوبنا لفراقهم، واجمعنا بهم في جنات النعيم على سرر متقابلين.`, badge: "دعاء الصبر" },
+        { text: `اللهم أبدل (${person.name}) داراً خيراً من دارهم، وأهلاً خيراً من أهلهم، وأدخلهم الجنة، وأعذهم من عذاب القبر ومن عذاب النار.`, badge: "دعاء مأثور" },
+        { text: `اللهم من كان منهم محسناً فزد في إحسانه، ومن كان منهم مسيئاً فتجاوز عن سيئاته، اللهم لا تحرمنا أجرهم ولا تفتنا بعدهم واغفر لنا ولهم.`, badge: "دعاء الجنازة" },
+        { text: `اللهم ثبّت (${person.name}) عند السؤال، ولقّنهم حجتهم، واجعل قبورهم أول منازل الجنة، واجعل هذه الليلة خير لياليهم.`, badge: "دعاء التثبيت" },
+        { text: `اللهم اجعل عن أيمان (${person.name}) نوراً، وعن شمائلهم نوراً، ومن فوقهم نوراً، ومن تحتهم نوراً، وابعثهم آمنين مطمئنين في نور من نورك.`, badge: "دعاء النور" },
+        { text: `اللهم ارحم (${person.name}) رحمة واسعة، واغفر لهم مغفرة جامعة، واجعل مثواهم الفردوس الأعلى بغير حساب ولا سابقة عذاب.`, badge: "دعاء الرحمة" },
+        { text: `اللهم اجعل ما أصاب (${person.name}) من مرض وتعب كفارة لذنوبهم ورفعة لدرجاتهم، واجزهم عن صبرهم خير الجزاء.`, badge: "دعاء التكفير" },
+        { text: `اللهم بارك في ذرية (${person.name}) وأهلهم من بعدهم، واجعلهم لهم صدقة جارية وعملاً لا ينقطع، واجمعنا بهم في مستقر رحمتك.`, badge: "دعاء الأهل" }
+      ];
+    } else if (isFem) {
       list = [
         { text: `اللهم اغفر لـ (${person.name}) وارحمها، وعافها واعف عنها، وأكرم نزلها ووسّع مدخلها، واغسلها بالماء والثلج والبرد، ونقِّها من الذنوب والخطايا كما ينقى الثوب الأبيض من الدنس.`, badge: "دعاء مأثور" },
         { text: `اللهم اجعل قبر (${person.name}) روضة من رياض الجنة، ولا تجعله حفرة من حفر النار، اللهم افسح لها في قبرها مد بصرها، وافرش قبرها من فراش الجنة.`, badge: "دعاء القبر" },
@@ -2772,6 +2818,20 @@
         deferredPrompt = null;
       });
       return;
+    }
+
+    // تنبيه عند الفتح من متصفح داخل تطبيق (واتساب/فيسبوك/انستجرام): التثبيت لا يعمل من هناك
+    const inAppBrowser = /WhatsApp|FBAN|FBAV|FB_IAB|Instagram|Messenger/i.test(navigator.userAgent);
+    const warnBox = document.getElementById('inapp-warning');
+    if (warnBox) {
+      if (inAppBrowser) {
+        warnBox.style.display = 'block';
+        warnBox.innerHTML = isIOS
+          ? '⚠️ <strong>تنبيه مهم:</strong> أنت تفتح الصفحة من داخل التطبيق الآن، والتثبيت لا يعمل من هنا. افتح الرابط في متصفح <strong>Safari</strong> أولاً (من النقاط ⋯ بالأعلى اختر «فتح في المتصفح»)، ثم كرر خطوات التثبيت من سفاري.'
+          : '⚠️ <strong>تنبيه مهم:</strong> أنت تفتح الصفحة من داخل التطبيق الآن، والتثبيت لا يعمل من هنا. من النقاط ⋯ بالأعلى اختر «فتح في المتصفح» أولاً، ثم كرر خطوات التثبيت.';
+      } else {
+        warnBox.style.display = 'none';
+      }
     }
 
     document.getElementById('ios-instruction').style.display = isIOS ? 'block' : 'none';
