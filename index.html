@@ -648,6 +648,22 @@
       text-align: right;
       white-space: nowrap;
     }
+    .mushaf-overlay-badge {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 6;
+      background: rgba(11, 61, 46, 0.88);
+      color: #F2C94C;
+      font-size: 12.5px;
+      font-weight: 800;
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(242, 201, 76, 0.6);
+      pointer-events: none;
+      white-space: nowrap;
+    }
     .page-sheet-head {
       display: flex;
       justify-content: space-between;
@@ -1141,6 +1157,7 @@
           <div class="mushaf-page-stage" id="mushaf-stage">
             <div class="mushaf-spinner" id="mushaf-loading" style="display:none;"><div class="spinner-ring"></div></div>
             <img id="mushaf-page-image" class="mushaf-page-img" src="https://raw.githubusercontent.com/Five-Prayers/quran-pages/main/quran_pages/1.png" alt="صفحة المصحف الشريف" loading="eager">
+            <div id="mushaf-overlay-badge" class="mushaf-overlay-badge" style="display:none;">الجزء ١</div>
             <div id="mushaf-fallback-note" class="mushaf-fallback-note" style="display:none;">تعذّر تحميل صورة الصفحة — يُعرض النص بالرسم العثماني بدلاً منها</div>
             <div id="mushaf-text-view" class="mushaf-text-view" style="display:none;"></div>
           </div>
@@ -1287,28 +1304,39 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "10";
+  const APP_VERSION = "11";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
     if (old === APP_VERSION) return;
     try { localStorage.setItem("app_ver", APP_VERSION); } catch(e) {}
-    if (old === null) return; // أول زيارة على هذا الجهاز: لا مسح ولا إعادة تحميل
+    const purgeOldCache = () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).catch(() => {});
+      }
+      if (window.caches) {
+        caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k)))).catch(() => {});
+      }
+      let reloaded = false;
+      try { reloaded = sessionStorage.getItem("app_ver_reloaded") === APP_VERSION; } catch(e) {}
+      if (!reloaded) {
+        try { sessionStorage.setItem("app_ver_reloaded", APP_VERSION); } catch(e) {}
+        setTimeout(() => location.reload(), 1200);
+      }
+    };
+    if (old !== null) { purgeOldCache(); return; }
+    // لا بصمة إصدار محفوظة: إن وُجد تسجيل خدمة أو كاش من نسخة أقدم امسحه، وإلا فهي أول زيارة فعلاً
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).catch(() => {});
-    }
-    if (window.caches) {
-      caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k)))).catch(() => {});
-    }
-    let reloaded = false;
-    try { reloaded = sessionStorage.getItem("app_ver_reloaded") === APP_VERSION; } catch(e) {}
-    if (!reloaded) {
-      try { sessionStorage.setItem("app_ver_reloaded", APP_VERSION); } catch(e) {}
-      setTimeout(() => location.reload(), 1200);
+      navigator.serviceWorker.getRegistration().then(reg => { if (reg) purgeOldCache(); }).catch(() => {});
     }
   })();
 
   if ('serviceWorker' in navigator) {
+    const hadController = !!navigator.serviceWorker.controller;
+    let swAutoReloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (hadController && !swAutoReloaded) { swAutoReloaded = true; location.reload(); }
+    });
     navigator.serviceWorker.register('/sw.js').then(reg => { if (reg) reg.update(); }).catch(() => {});
   }
 
@@ -1323,14 +1351,14 @@
   
   const SHEET_ID = "1lm-t74RuBaR7q3-9-yF74LhaYRlByr0oywvaPQ9B1Gk";
   const ADMIN_URL = "https://script.google.com/macros/s/AKfycbyX2FzA161MS6YL-VxCAe1ja5MyyO_M-x3Q8NUylB_eJcWE0HbDpDpJ08uvz51xcMJTfg/exec?page=admin";
-  // مصادر إذاعة القرآن الكريم — روابط HTTPS مباشرة موثقة (qurango تابع لـ mp3quran)
+  // مصادر الإذاعة: الأولى هي إذاعة القرآن الكريم من القاهرة — بثها الرسمي (RadioJar) يعمل بـ HTTP فقط
+  // فيُحجَب على المواقع الآمنة HTTPS، لذا تُبث هنا عبر وسيط HTTPS لنفس المحطة، والاحتياطي إذاعات قرّاء موثقة
   const RADIO_STREAMS = [
+    "https://service.webvideocore.net/CL1olYogIrDWvwqiIKK7eCxOS4PStqG9DuEjAr2ZjZQtvS3d4y9r0cvRhvS17SGN/a_7a4vuubc6mo8.m3u8",
     "https://backup.qurango.net/radio/mix",
-    "https://backup.qurango.net/radio/maher",
-    "https://backup.qurango.net/radio/mishary_alafasi",
-    "https://stream.radiojar.com/8s5u5tpdtwzuv"
+    "https://backup.qurango.net/radio/maher"
   ];
-  const CAIRO_QURAN_RADIO_URL = RADIO_STREAMS[RADIO_STREAMS.length - 1];
+  const CAIRO_QURAN_RADIO_URL = RADIO_STREAMS[0];
   let radioStreamIndex = 0;
   let radioWanted = false;
   let radioStallTimer = null;
@@ -1729,41 +1757,47 @@
   }
 
   // نظام التذكير بأوقات الصلوات الخمس
+  function showPrayerPopup(title, msg) {
+    const t = document.getElementById("prayer-reminder-title");
+    const m = document.getElementById("prayer-reminder-msg");
+    const modal = document.getElementById("prayer-reminder-modal");
+    if (!t || !m || !modal) return;
+    t.textContent = title;
+    m.textContent = msg;
+    modal.style.display = "flex";
+  }
+
+  // تذكير تلقائي عند دخول صفحة الفقيد: عند وقت صلاة (مواقيت حقيقية) رسالة الصلاة، وإلا تذكير دعاء مرة يومياً
   function checkPrayerReminderTime(person, isFem) {
-    const hour = new Date().getHours();
     const todayStr = new Date().toISOString().slice(0, 10);
-
-    let prayerName = null;
-    let prayerPeriodKey = null;
-
-    if (hour >= 4 && hour < 7) {
-      prayerName = "الفجر";
-      prayerPeriodKey = "fajr";
-    } else if (hour >= 11 && hour < 14) {
-      prayerName = "الظهر";
-      prayerPeriodKey = "dhuhr";
-    } else if (hour >= 15 && hour < 17) {
-      prayerName = "العصر";
-      prayerPeriodKey = "asr";
-    } else if (hour >= 17 && hour < 19) {
-      prayerName = "المغرب";
-      prayerPeriodKey = "maghrib";
-    } else if (hour >= 19 && hour < 23) {
-      prayerName = "العشاء";
-      prayerPeriodKey = "isha";
-    }
-
-    if (!prayerPeriodKey) return;
-
-    const seenKey = `seen_prayer_${prayerPeriodKey}_${todayStr}`;
-    if (localStorage.getItem(seenKey)) return;
-
-    setTimeout(() => {
-      document.getElementById("prayer-reminder-title").textContent = `🕌 حان الآن وقت صلاة ${prayerName}`;
-      document.getElementById("prayer-reminder-msg").textContent = `تقبل الله طاعتكم وصالح أعمالكم.. اجعل لـ (${person.name}) نصيباً من دعائك بالرحمة والمغفرة في هذا الوقت المبارك، وادعُ لنفسك وأهلك بالخير والبركة 🤍`;
-      document.getElementById("prayer-reminder-modal").style.display = "flex";
+    const showGeneral = () => {
+      const key = `seen_dua_popup_${todayStr}`;
+      try { if (localStorage.getItem(key)) return; localStorage.setItem(key, "true"); } catch(e) {}
+      setTimeout(() => {
+        showPrayerPopup("🤲 دعوة من القلب", `اجعل لـ (${person.name}) نصيباً من دعائك بالرحمة والمغفرة، وادعُ لنفسك وأهلك بالخير والبركة 🤍`);
+      }, 2200);
+    };
+    getPrayerTimes().then(times => {
+      const now = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      let hit = null;
+      PRAYERS_META.forEach(p => {
+        const t = times[p.key];
+        if (!t) return;
+        const parts = t.split(":");
+        const mins = (parseInt(parts[0], 10) * 60) + parseInt(parts[1], 10);
+        if (nowMin >= mins && nowMin <= mins + 90) hit = p;
+      });
+      if (!hit) { showGeneral(); return; }
+      const seenKey = `seen_prayer_${hit.key}_${todayStr}`;
+      let seen = false;
+      try { seen = !!localStorage.getItem(seenKey); } catch(e) {}
+      if (seen) return;
       try { localStorage.setItem(seenKey, "true"); } catch(e) {}
-    }, 2200);
+      setTimeout(() => {
+        showPrayerPopup(`🕌 حان الآن وقت صلاة ${hit.name}`, `تقبل الله طاعتكم وصالح أعمالكم.. اجعل لـ (${person.name}) نصيباً من دعائك بالرحمة والمغفرة في هذا الوقت المبارك، وادعُ لنفسك وأهلك بالخير والبركة 🤍`);
+      }, 2200);
+    }).catch(() => showGeneral());
   }
 
   function closePrayerModal() {
@@ -1973,9 +2007,51 @@
     if (radioStallTimer) { clearTimeout(radioStallTimer); radioStallTimer = null; }
   }
 
+  // تشغيل مصادر HLS (بث القاهرة) عبر hls.js عند الحاجة — سفاري يدعمها أصلاً
+  let radioHls = null;
+  let radioHlsAttaching = false;
+  let hlsLibPromise = null;
+  function loadHlsLib() {
+    if (window.Hls) return Promise.resolve(true);
+    if (hlsLibPromise) return hlsLibPromise;
+    hlsLibPromise = new Promise(res => {
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js";
+      s.onload = () => res(!!window.Hls);
+      s.onerror = () => res(false);
+      document.head.appendChild(s);
+    });
+    return hlsLibPromise;
+  }
+  function destroyRadioHls() {
+    if (radioHls) { try { radioHls.destroy(); } catch(e) {} radioHls = null; }
+  }
+
   function setRadioStream(index) {
     radioStreamIndex = index;
-    radioAudio.src = RADIO_STREAMS[index];
+    const url = RADIO_STREAMS[index];
+    destroyRadioHls();
+    if (url.indexOf(".m3u8") !== -1) {
+      if (radioAudio.canPlayType("application/vnd.apple.mpegurl")) {
+        radioAudio.src = url;
+        return;
+      }
+      radioHlsAttaching = true;
+      loadHlsLib().then(ok => {
+        radioHlsAttaching = false;
+        if (radioStreamIndex !== index) return;
+        if (!ok || !window.Hls || !Hls.isSupported()) { advanceRadioStream(); return; }
+        radioHls = new Hls({ enableWorker: true });
+        radioHls.loadSource(url);
+        radioHls.attachMedia(radioAudio);
+        radioHls.on(Hls.Events.ERROR, (ev, data) => {
+          if (data && data.fatal && radioWanted) advanceRadioStream();
+        });
+        if (radioWanted) radioAudio.play().then(updateRadioBtn).catch(() => {});
+      });
+      return;
+    }
+    radioAudio.src = url;
   }
 
   function advanceRadioStream() {
@@ -2000,6 +2076,7 @@
       }
       radioWanted = true;
       if (!radioAudio.src) setRadioStream(radioStreamIndex);
+      if (radioHlsAttaching) { updateRadioBtn(); return; }
       radioAudio.play().then(updateRadioBtn).catch(() => advanceRadioStream());
     } else {
       radioWanted = false;
@@ -2098,6 +2175,8 @@
     const spinner = document.getElementById("mushaf-loading");
     const stage = document.getElementById("mushaf-stage");
     if (stage) stage.classList.add("text-mode");
+    const ovb = document.getElementById("mushaf-overlay-badge");
+    if (ovb) ovb.style.display = "none";
     img.style.display = "none";
     note.style.display = isFallback ? "block" : "none";
     textView.style.display = "block";
@@ -2152,6 +2231,8 @@
     let txt = `الجزء ${toArabicDigits(juz)}`;
     if (pagesMeta && pagesMeta[pageNum] && pagesMeta[pageNum].h) txt += ` • الحزب ${toArabicDigits(pagesMeta[pageNum].h)}`;
     badge.textContent = txt;
+    const ov = document.getElementById("mushaf-overlay-badge");
+    if (ov) ov.textContent = txt;
   }
   function fillJuzSelect() {
     const sel = document.getElementById("juz-select");
@@ -2281,6 +2362,20 @@
   })();
 
   // محرك مصحف المدينة المنورة الأصلي (عرض الصفحات المصورة الحقيقية)
+  function applyMushafModeUI() {
+    const bImg = document.getElementById("btn-mushaf-image");
+    const bTxt = document.getElementById("btn-mushaf-text");
+    if (bImg) bImg.classList.toggle("active", mushafMode === "image");
+    if (bTxt) bTxt.classList.toggle("active", mushafMode === "text");
+  }
+
+  function switchMushafMode(mode) {
+    mushafMode = (mode === "text") ? "text" : "image";
+    try { localStorage.setItem("mushaf_mode", mushafMode); } catch(e) {}
+    applyMushafModeUI();
+    showMushafPage(currentMushafPage);
+  }
+
   function initMushafPagesReader() {
     applyMushafModeUI();
     fillJuzSelect();
@@ -2323,12 +2418,16 @@
       stage.classList.add(dir === "next" ? "mushaf-anim-next" : "mushaf-anim-prev");
     }
 
+    const overlayBadge = document.getElementById("mushaf-overlay-badge");
+
     if (mushafMode === "text") {
+      if (overlayBadge) overlayBadge.style.display = "none";
       renderMushafTextPage(pageNum, false);
       return;
     }
 
     // الوضع المصوّر
+    if (overlayBadge) overlayBadge.style.display = "block";
     if (stage) stage.classList.remove("text-mode");
     textView.style.display = "none";
     note.style.display = "none";
