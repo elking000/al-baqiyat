@@ -585,9 +585,9 @@
     .uthmani-text {
       font-family: 'UthmanicHafs', 'Amiri', serif;
       font-size: 25px;
-      line-height: 2.35;
+      line-height: 2.0;
       color: #0B3D2E;
-      text-align: justify;
+      text-align: right;
     }
     .surah-header-band {
       font-family: 'Amiri', serif;
@@ -1828,7 +1828,7 @@
         data.surahs.forEach(su => {
           su.ayahs.forEach(a => {
             // إزالة علامات تظهر كدوائر سوداء كبيرة في خط KFGQPC على الويب (صفر مدوّر وأخواته)
-            const clean = a.t.replace(/[\u06DF\u06E3\u06EB]/g, "");
+            const clean = a.t.replace(/[\u06DF\u06E3\u06EB\u06ED]/g, "");
             (quranTextPages[a.p] = quranTextPages[a.p] || []).push({ s: su.n, n: a.n, t: clean });
           });
         });
