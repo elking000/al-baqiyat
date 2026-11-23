@@ -1300,7 +1300,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "15";
+  const APP_VERSION = "16";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -2056,6 +2056,23 @@
     if (radioHls) { try { radioHls.destroy(); } catch(e) {} radioHls = null; }
   }
 
+  // تشغيل آمن للإذاعة: يفرّق بين رفض المتصفح للتشغيل التلقائي (NotAllowedError — لا نبدّل المصدر)
+  // وبين فشل حقيقي في البث، ويراقب بدء التشغيل بمهلة حتى لا يعلّق البث بصمت على الموبايل
+  function playRadioSafe() {
+    clearRadioStallTimer();
+    radioStallTimer = setTimeout(() => { if (radioWanted && radioAudio.paused) advanceRadioStream(); }, 12000);
+    radioAudio.play().then(updateRadioBtn).catch((err) => {
+      if (err && err.name === "NotAllowedError") { updateRadioBtn(); return; }
+      if (radioWanted) advanceRadioStream();
+    });
+  }
+
+  // تحميل مكتبة HLS مسبقاً عند أول لمسة للشاشة حتى تكون جاهزة لحظة ضغط زر الإذاعة
+  document.addEventListener("pointerdown", function preloadHlsOnce() {
+    document.removeEventListener("pointerdown", preloadHlsOnce);
+    if (!radioAudio.canPlayType("application/vnd.apple.mpegurl")) loadHlsLib();
+  });
+
   function setRadioStream(index) {
     radioStreamIndex = index;
     const url = RADIO_STREAMS[index];
@@ -2070,13 +2087,13 @@
         radioHlsAttaching = false;
         if (radioStreamIndex !== index) return;
         if (!ok || !window.Hls || !Hls.isSupported()) { advanceRadioStream(); return; }
-        radioHls = new Hls({ enableWorker: true });
+        radioHls = new Hls({ enableWorker: false });
         radioHls.loadSource(url);
         radioHls.attachMedia(radioAudio);
         radioHls.on(Hls.Events.ERROR, (ev, data) => {
           if (data && data.fatal && radioWanted) advanceRadioStream();
         });
-        if (radioWanted) radioAudio.play().then(updateRadioBtn).catch(() => {});
+        if (radioWanted) playRadioSafe();
       });
       return;
     }
@@ -2087,9 +2104,7 @@
     clearRadioStallTimer();
     if (radioStreamIndex < RADIO_STREAMS.length - 1) {
       setRadioStream(radioStreamIndex + 1);
-      if (radioWanted) {
-        radioAudio.play().then(updateRadioBtn).catch(() => advanceRadioStream());
-      }
+      if (radioWanted) playRadioSafe();
     } else {
       radioWanted = false;
       updateRadioBtn();
@@ -2106,7 +2121,7 @@
       radioWanted = true;
       if (!radioAudio.src) setRadioStream(radioStreamIndex);
       if (radioHlsAttaching) { updateRadioBtn(); return; }
-      radioAudio.play().then(updateRadioBtn).catch(() => advanceRadioStream());
+      playRadioSafe();
     } else {
       radioWanted = false;
       clearRadioStallTimer();

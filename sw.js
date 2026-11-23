@@ -1,7 +1,4 @@
-// sw.js مبني على نسخة الباقيات v15 الحيّة + استثناء واحد: مجلد /clients/ خارج كاش المنصة.
-// ارفع هذا الملف باسم sw.js في جذر المشروع مع مجلد أول عميل برايفت —
-// CACHE_NAME نفسه baqiyat-v15 فلا يرجّع إصلاح الآيفون (المانيفست الديناميكي) لورا.
-const CACHE_NAME = 'baqiyat-v15';
+const CACHE_NAME = 'baqiyat-v16';
 const RUNTIME_CACHE = 'baqiyat-runtime-v12';
 const PRECACHE = [
   '/',
@@ -26,7 +23,7 @@ self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(
-        keys.filter((k) => k.startsWith('baqiyat-') && k !== CACHE_NAME && k !== RUNTIME_CACHE).map((k) => caches.delete(k))
+        keys.filter((k) => k !== CACHE_NAME && k !== RUNTIME_CACHE).map((k) => caches.delete(k))
       ))
       .then(() => self.clients.claim())
   );
@@ -35,13 +32,6 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
-
-  // صفحات العملاء البرايفت (/clients/...): شبكة فقط دائماً — لا تدخل كاش المنصة
-  // ولا الأوفلاين بتاعها، فتفضل مستقلة تماماً عن المنصة.
-  if (url.pathname.startsWith('/clients/')) {
-    e.respondWith(fetch(e.request));
-    return;
-  }
 
   // بيانات الشيت وApps Script: شبكة فقط دائماً — لا تُخزَّن لتبقى بيانات الصفحات ودفتر العزاء حية
   if (url.hostname === 'docs.google.com' || url.hostname === 'script.google.com') {
