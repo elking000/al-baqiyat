@@ -851,22 +851,6 @@
     .condolence-date { font-size: 10px; color: var(--text-muted); }
     .condolence-text { font-size: 12.5px; color: #2B3833; line-height: 1.6; }
 
-    /* نموذج إنشاء صفحة (خدمة ذاتية) + ختم المعاينة */
-    .create-card { background: #FFF; border: 1px solid var(--card-border); border-radius: 18px; padding: 16px 14px; margin: 0 auto 14px; max-width: 520px; text-align: right; }
-    .create-card label { display: block; font-size: 13px; font-weight: 700; color: var(--primary); margin: 12px 0 6px; }
-    .type-pills { display: flex; gap: 8px; }
-    .type-pill { flex: 1; padding: 10px 4px; border: 1.5px solid #E1E6E3; border-radius: 12px; background: #FAFBFA; font-size: 13.5px; font-weight: 700; cursor: pointer; color: #44554D; }
-    .type-pill.active { background: var(--primary); color: #FFF; border-color: var(--primary); }
-    .photo-choices { display: flex; gap: 8px; }
-    .photo-choice { flex: 1; border: 2px solid #E1E6E3; border-radius: 12px; overflow: hidden; cursor: pointer; background: #FAFBFA; padding: 0; }
-    .photo-choice img { width: 100%; height: 74px; object-fit: cover; display: block; }
-    .photo-choice span { display: block; font-size: 11px; font-weight: 700; padding: 5px 2px; color: #44554D; text-align: center; }
-    .photo-choice.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(245,158,11,.25); }
-    .cr-hint { font-size: 11px; color: var(--text-muted); margin-top: -4px; }
-    #preview-watermark { position: fixed; inset: 0; z-index: 900; pointer-events: none; display: none; }
-    #preview-watermark .wm-banner { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #d97706, #F59E0B); color: #2A1D00; text-align: center; font-weight: 800; font-size: 13px; padding: 9px 12px; box-shadow: 0 2px 12px rgba(0,0,0,.25); }
-    #preview-watermark .wm-stamp { position: absolute; top: 52%; left: 50%; transform: translate(-50%,-50%) rotate(-16deg); font-size: 58px; font-weight: 900; color: rgba(185,28,28,.15); border: 5px solid rgba(185,28,28,.15); border-radius: 16px; padding: 2px 30px 10px; white-space: nowrap; }
-
     /* كارت المشاركة والـ QR */
     .qr-showcase { background: #FFF; border: 1px solid var(--card-border); border-radius: 20px; padding: 20px 14px; text-align: center; margin-bottom: 12px; }
     .qr-frame { width: 155px; height: 155px; border-radius: 14px; border: 2px solid var(--accent); padding: 6px; background: #FFF; margin: 10px auto; display: block; }
@@ -997,81 +981,8 @@
       <div class="feat-row"><span>📲</span> باركود QR ذكي فائق الجودة للمشاركة والطباعة</div>
     </div>
 
-    <button type="button" class="btn-main-action" onclick="showCreateView()">أنشئ صفحة صدقة جارية الآن 🤍</button>
-    <button type="button" onclick="openDirectWhatsApp()" style="background:none; border:none; color:var(--text-muted); font-size:13px; cursor:pointer; text-decoration:underline; padding:8px;">أو كلمنا واتساب ونساعدك خطوة بخطوة</button>
+    <button type="button" class="btn-main-action" onclick="openDirectWhatsApp()">أنشئ صفحة صدقة جارية الآن 🤍</button>
     <footer class="site-footer">الباقيات &copy; 2026 - لكل لحظة أثر</footer>
-  </section>
-
-  <!-- ختم المعاينة للصفحات غير المفعّلة -->
-  <div id="preview-watermark">
-    <div class="wm-banner">صفحة معاينة — لم يتم التفعيل بعد 🤍</div>
-    <div class="wm-stamp">معاينة</div>
-  </div>
-
-  <!-- نموذج إنشاء صفحة صدقة جارية (خدمة ذاتية) -->
-  <section id="create-view" style="display:none;">
-    <img src="/logo.png" alt="شعار منصة الباقيات" class="badge-logo-img">
-    <h1 class="main-brand-title" style="font-size:24px;">إنشاء صفحة صدقة جارية</h1>
-    <p class="brand-sub">املأ البيانات وستُنشأ صفحة فقيدك فوراً كمعاينة كاملة بكل المزايا، وتُفعَّل نهائياً بعد تأكيد الدفع.</p>
-
-    <div class="create-card" id="create-form-card">
-      <label>نوع الصفحة</label>
-      <div class="type-pills">
-        <button type="button" class="type-pill active" data-cr-type="male" onclick="setCrType('male')">متوفى</button>
-        <button type="button" class="type-pill" data-cr-type="female" onclick="setCrType('female')">متوفية</button>
-        <button type="button" class="type-pill" data-cr-type="group" onclick="setCrType('group')">مجموعة</button>
-      </div>
-
-      <label for="cr-name">اسم المتوفى (أو أسماء المتوفين)</label>
-      <input type="text" id="cr-name" class="gb-inp" placeholder="مثال: الحاج محمد أحمد علي">
-
-      <label for="cr-date">تاريخ الوفاة (اختياري)</label>
-      <input type="date" id="cr-date" class="gb-inp">
-
-      <label>صورة المتوفى</label>
-      <div class="photo-choices">
-        <button type="button" class="photo-choice active" data-ready="1" onclick="selectReadyPhoto(1, this)"><img src="/assets/default-1.jpg" alt="مسجد عند الغروب"><span>مسجد</span></button>
-        <button type="button" class="photo-choice" data-ready="2" onclick="selectReadyPhoto(2, this)"><img src="/assets/default-2.jpg" alt="ورود بيضاء"><span>ورود</span></button>
-        <button type="button" class="photo-choice" data-ready="3" onclick="selectReadyPhoto(3, this)"><img src="/assets/default-3.jpg" alt="حديقة هادئة"><span>حديقة</span></button>
-        <button type="button" class="photo-choice" id="cr-upload-tile" onclick="document.getElementById('cr-photo-file').click()"><img id="cr-upload-thumb" src="/assets/default-1.jpg" alt="رفع صورة شخصية" style="opacity:.35"><span>📷 ارفع صورة</span></button>
-      </div>
-      <input type="file" id="cr-photo-file" accept="image/*" style="display:none" onchange="onCrPhotoChosen(this)">
-      <p class="cr-hint">اختر صورة جاهزة أو ارفع صورة المتوفى من جهازك.</p>
-
-      <label for="cr-dua-select">الدعاء الظاهر على الصفحة</label>
-      <select id="cr-dua-select" class="gb-inp" onchange="onCrDuaSelect()"></select>
-      <textarea id="cr-dua-custom" class="gb-text" rows="2" placeholder="اكتب الدعاء الخاص هنا..." style="display:none"></textarea>
-
-      <label for="cr-client-name">اسمك الكريم (اختياري)</label>
-      <input type="text" id="cr-client-name" class="gb-inp" placeholder="مثال: أحمد محمد">
-
-      <label for="cr-phone">رقم الواتساب الخاص بك (مطلوب — لمتابعة التفعيل)</label>
-      <input type="tel" id="cr-phone" class="gb-inp" placeholder="01xxxxxxxxx" dir="ltr" style="text-align:right">
-
-      <label for="cr-slug">اسم اللينك بالإنجليزية (اختياري)</label>
-      <input type="text" id="cr-slug" class="gb-inp" placeholder="example: mohamed-ahmed" dir="ltr" style="text-align:right">
-      <p class="cr-hint">حروف إنجليزية وأرقام وشرطة فقط — ولو تركته فارغاً سنولّد لينكاً تلقائياً.</p>
-
-      <button type="button" class="btn-main-action" id="cr-submit" style="margin-top:14px;" onclick="submitCreatePage()">إنشاء الصفحة الآن 🚀</button>
-      <button type="button" onclick="showHomeView()" style="background:none; border:none; color:var(--text-muted); font-size:13px; cursor:pointer; text-decoration:underline; padding:8px; display:block; margin:2px auto 0;">رجوع للرئيسية</button>
-    </div>
-
-    <div class="create-card" id="create-success" style="display:none; text-align:center;">
-      <div style="font-size:40px;">🎉</div>
-      <h3 style="margin:6px 0; color:var(--primary);">تم إنشاء صفحة فقيدك بنجاح</h3>
-      <p style="font-size:13px; color:var(--text-muted); line-height:1.9;">صفحتك جاهزة الآن كمعاينة كاملة بكل المزايا (المصحف، الإذاعة، السبحة، دفتر العزاء).<br>لينك صفحتك:</p>
-      <div id="cs-link" dir="ltr" style="background:#F4F7F5; border:1.5px dashed var(--accent); border-radius:12px; padding:10px; font-size:13.5px; font-weight:700; color:var(--primary); word-break:break-all;"></div>
-      <p id="cs-status" style="font-size:12px; color:var(--text-muted); margin:8px 0;">جارٍ تجهيز اللينك... قد يستغرق ثواني قليلة.</p>
-      <div style="display:flex; gap:8px; margin-top:10px;">
-        <a id="cs-open" href="#" target="_blank" class="btn-main-action" style="flex:1; text-decoration:none;">فتح الصفحة 👁️</a>
-        <button type="button" class="btn-main-action" style="flex:1;" onclick="copyCreatedLink()">نسخ اللينك 🔗</button>
-      </div>
-      <div style="background:#FDF6E3; border:1px solid #E8C87A; border-radius:14px; padding:12px; margin-top:14px; text-align:right;">
-        <strong style="color:#7A5B12;">لتفعيل الصفحة نهائياً وإزالة ختم المعاينة:</strong>
-        <p style="font-size:13px; line-height:2; margin:6px 0;">حوّل <strong>190 جنيه</strong> على فودافون كاش: <strong dir="ltr">01092562271</strong><br>أو إنستا باي: <strong dir="ltr">01229385401</strong><br>ثم ابعت صورة التحويل واتساب وسنفعّل صفحتك فوراً.</p>
-        <a id="cs-wa" href="#" target="_blank" class="btn-main-action" style="text-decoration:none; background:#25D366;">إرسال تأكيد الدفع واتساب 📲</a>
-      </div>
-    </div>
   </section>
 
   <!-- شاشة عدم العثور على الصفحة -->
@@ -1389,7 +1300,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "18";
+  const APP_VERSION = "17";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -1665,8 +1576,7 @@
             title: c[2] ? (c[2].v || c[2].f || "المغفور له بإذن الله تعالى") : "المغفور له بإذن الله تعالى",
             photo: c[3] ? fixDriveUrl(String(c[3].v || c[3].f || "")) : "",
             death_date: c[4] ? (c[4].f || c[4].v || "") : "",
-            custom_dua: c[7] ? String(c[7].v || c[7].f || "") : "اللهم اجعل عن يمينه نوراً وعن شماله نوراً وافسح له في قبره",
-            status: c[5] ? String(c[5].v || c[5].f || "").trim().toLowerCase() : ""
+            custom_dua: c[7] ? String(c[7].v || c[7].f || "") : "اللهم اجعل عن يمينه نوراً وعن شماله نوراً وافسح له في قبره"
           };
           break;
         }
@@ -1731,10 +1641,6 @@
       // اسم أيقونة الشاشة الرئيسية على آيفون يصبح اسم الفقيد نفسه
       const appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
       if (appleTitleMeta && person.name) appleTitleMeta.setAttribute('content', person.name);
-
-      // ختم المعاينة للصفحات غير المفعّلة بعد (حالتها في الشيت preview)
-      const wm = document.getElementById("preview-watermark");
-      if (wm) wm.style.display = (person.status === "preview") ? "block" : "none";
 
       document.getElementById("d-name").textContent = person.name;
       document.getElementById("d-title").textContent = person.title;
@@ -2951,208 +2857,6 @@
 
     alert("جزاك الله خيراً، تم تسجيل دعائك في دفتر العزاء 🤍");
   }
-
-  // ===== إنشاء صفحة صدقة جارية — خدمة ذاتية للعميل =====
-  const CR_DUA_PRESETS = {
-    male: [
-      "اللهم اغفر له وارحمه وعافه واعف عنه وأكرم نزله ووسع مدخله واغسله بالماء والثلج والبرد",
-      "اللهم اجعل قبره روضة من رياض الجنة ولا تجعله حفرة من حفر النار",
-      "اللهم أنر قبره وافسح له فيه مد بصره واجعله في الفردوس الأعلى من الجنة",
-      "اللهم يمّن كتابه ويسّر حسابه وثقّل بالحسنات ميزانه وثبّت على الصراط أقدامه"
-    ],
-    female: [
-      "اللهم اغفر لها وارحمها وعافها واعف عنها وأكرم نزلها ووسع مدخلها واغسلها بالماء والثلج والبرد",
-      "اللهم اجعل قبرها روضة من رياض الجنة ولا تجعله حفرة من حفر النار",
-      "اللهم أنر قبرها وافسح لها فيه مد بصرها واجعلها في الفردوس الأعلى من الجنة",
-      "اللهم يمّن كتابها ويسّر حسابها وثقّل بالحسنات ميزانها وثبّت على الصراط أقدامها"
-    ],
-    group: [
-      "اللهم اغفر لهم وارحمهم وعافهم واعف عنهم وأكرم نزلهم ووسع مدخلهم واغسلهم بالماء والثلج والبرد",
-      "اللهم اجعل قبورهم رياضاً من رياض الجنة ولا تجعلها حفراً من حفر النار",
-      "اللهم أنر قبورهم وافسح لهم فيها واجعلهم في الفردوس الأعلى من الجنة",
-      "اللهم يمّن كتبهم ويسّر حسابهم وثقّل بالحسنات موازينهم وثبّت على الصراط أقدامهم"
-    ]
-  };
-  let crType = "male";
-  let crPhotoMode = "ready";
-  let crReadyPhoto = BASE_URL + "/assets/default-1.jpg";
-  let crPhotoBase64 = null;
-  let createdPageLink = "";
-
-  function showCreateView() {
-    ["home-view", "deceased-view", "notfound-view"].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = "none"; });
-    document.getElementById("create-view").style.display = "block";
-    window.scrollTo(0, 0);
-  }
-
-  function showHomeView() {
-    document.getElementById("create-view").style.display = "none";
-    document.getElementById("home-view").style.display = "flex";
-    window.scrollTo(0, 0);
-  }
-
-  function fillCrDuaOptions() {
-    const sel = document.getElementById("cr-dua-select");
-    if (!sel) return;
-    sel.innerHTML = "";
-    const def = document.createElement("option");
-    def.value = "";
-    def.textContent = "الدعاء الافتراضي للمنصة";
-    sel.appendChild(def);
-    CR_DUA_PRESETS[crType].forEach(d => {
-      const o = document.createElement("option");
-      o.value = d;
-      o.textContent = d.length > 60 ? d.slice(0, 60) + "..." : d;
-      sel.appendChild(o);
-    });
-    const cust = document.createElement("option");
-    cust.value = "__custom__";
-    cust.textContent = "✍️ أكتب دعاءً خاصاً";
-    sel.appendChild(cust);
-    document.getElementById("cr-dua-custom").style.display = "none";
-  }
-
-  function setCrType(t) {
-    crType = t;
-    document.querySelectorAll(".type-pill").forEach(p => p.classList.toggle("active", p.getAttribute("data-cr-type") === t));
-    fillCrDuaOptions();
-  }
-
-  function onCrDuaSelect() {
-    const sel = document.getElementById("cr-dua-select");
-    document.getElementById("cr-dua-custom").style.display = (sel.value === "__custom__") ? "block" : "none";
-  }
-
-  function selectReadyPhoto(n, el) {
-    crPhotoMode = "ready";
-    crPhotoBase64 = null;
-    crReadyPhoto = BASE_URL + "/assets/default-" + n + ".jpg";
-    document.querySelectorAll(".photo-choice[data-ready]").forEach(p => p.classList.toggle("active", p === el));
-    document.getElementById("cr-upload-tile").classList.remove("active");
-  }
-
-  function onCrPhotoChosen(input) {
-    const file = input.files && input.files[0];
-    if (!file) return;
-    const img = new Image();
-    img.onload = function() {
-      try {
-        const maxDim = 1000;
-        let w = img.naturalWidth, h = img.naturalHeight;
-        const scale = Math.min(1, maxDim / Math.max(w, h));
-        w = Math.round(w * scale); h = Math.round(h * scale);
-        const canvas = document.createElement("canvas");
-        canvas.width = w; canvas.height = h;
-        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-        crPhotoBase64 = dataUrl.split(",")[1];
-        crPhotoMode = "upload";
-        const thumb = document.getElementById("cr-upload-thumb");
-        thumb.src = dataUrl;
-        thumb.style.opacity = "1";
-        document.querySelectorAll(".photo-choice[data-ready]").forEach(p => p.classList.remove("active"));
-        document.getElementById("cr-upload-tile").classList.add("active");
-      } catch(e) {}
-      URL.revokeObjectURL(img.src);
-    };
-    img.src = URL.createObjectURL(file);
-  }
-
-  function sanitizeCrSlug(raw) {
-    return String(raw || "").toLowerCase().trim().replace(/[^a-z0-9\-_]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
-  }
-
-  function submitCreatePage() {
-    const name = document.getElementById("cr-name").value.trim();
-    const phoneDigits = document.getElementById("cr-phone").value.replace(/[^\d]/g, "");
-    if (name.length < 3) { alert("يرجى كتابة اسم المتوفى كاملاً 🤍"); return; }
-    if (phoneDigits.length < 10) { alert("يرجى كتابة رقم واتساب صحيح حتى نتمكن من متابعة التفعيل معك 🤍"); return; }
-
-    let slug = sanitizeCrSlug(document.getElementById("cr-slug").value);
-    if (!slug) slug = "page-" + Math.random().toString(36).substring(2, 8);
-
-    const sel = document.getElementById("cr-dua-select");
-    let dua = "";
-    if (sel.value === "__custom__") dua = document.getElementById("cr-dua-custom").value.trim();
-    else dua = sel.value;
-
-    const payload = {
-      action: "create_page",
-      name: name,
-      type: crType,
-      death_date: document.getElementById("cr-date").value || "",
-      custom_dua: dua,
-      client_name: document.getElementById("cr-client-name").value.trim(),
-      phone: phoneDigits,
-      slug: slug
-    };
-    if (crPhotoMode === "upload" && crPhotoBase64) { payload.photoBase64 = crPhotoBase64; payload.photoMime = "image/jpeg"; }
-    else payload.photoUrl = crReadyPhoto;
-
-    const btn = document.getElementById("cr-submit");
-    btn.disabled = true;
-    btn.textContent = "جارٍ إنشاء صفحتك... ⏳";
-
-    fetch(SCRIPT_BASE, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(payload) })
-      .catch(() => {})
-      .finally(() => {
-        createdPageLink = BASE_URL + "/?page=" + encodeURIComponent(slug);
-        document.getElementById("create-form-card").style.display = "none";
-        document.getElementById("create-success").style.display = "block";
-        document.getElementById("cs-link").textContent = createdPageLink;
-        document.getElementById("cs-open").href = createdPageLink;
-        const waText = encodeURIComponent("السلام عليكم، أنشأت صفحة صدقة جارية باسم (" + name + ") ولينكها: " + createdPageLink + " — وقمت بتحويل 190 جنيه، برجاء تفعيل الصفحة 🤍");
-        document.getElementById("cs-wa").href = "https://api.whatsapp.com/send?phone=201092562271&text=" + waText;
-        window.scrollTo(0, 0);
-        confirmCreatedPage(name, phoneDigits, slug, 0);
-      });
-  }
-
-  // تأكيد ظهور الصفحة في الشيت (واكتشاف اللينك النهائي لو تغيّر لتشابه الأسماء)
-  function confirmCreatedPage(name, phone, wantedSlug, attempt) {
-    if (attempt > 3) return;
-    const delay = attempt === 0 ? 6000 : 8000;
-    setTimeout(() => {
-      window.handleCreateConfirm = function(res) {
-        let foundSlug = "";
-        try {
-          if (res && res.table && res.table.rows) {
-            for (let i = 0; i < res.table.rows.length; i++) {
-              const c = res.table.rows[i].c;
-              if (!c || !c[0]) continue;
-              const rowSlug = cleanArabicSlug(c[0].v != null ? c[0].v : (c[0].f || ""));
-              const rowPhone = c[6] ? String(c[6].v != null ? c[6].v : (c[6].f || "")).replace(/[^\d]/g, "") : "";
-              const rowName = c[1] ? String(c[1].v != null ? c[1].v : (c[1].f || "")).trim() : "";
-              if (rowPhone && rowPhone === phone && rowName === name) { foundSlug = rowSlug; break; }
-              if (rowSlug === cleanArabicSlug(wantedSlug)) foundSlug = rowSlug;
-            }
-          }
-        } catch(e) {}
-        const statusEl = document.getElementById("cs-status");
-        if (foundSlug) {
-          if (foundSlug !== cleanArabicSlug(wantedSlug)) {
-            createdPageLink = BASE_URL + "/?page=" + encodeURIComponent(foundSlug);
-            document.getElementById("cs-link").textContent = createdPageLink;
-            document.getElementById("cs-open").href = createdPageLink;
-          }
-          if (statusEl) statusEl.textContent = "✅ صفحتك أصبحت جاهزة الآن — افتحها من الزرار أو انسخ اللينك وشاركه.";
-        } else {
-          confirmCreatedPage(name, phone, wantedSlug, attempt + 1);
-        }
-      };
-      const s = document.createElement("script");
-      s.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleCreateConfirm&_=${Date.now()}`;
-      s.onerror = function() { confirmCreatedPage(name, phone, wantedSlug, attempt + 1); };
-      document.body.appendChild(s);
-    }, delay);
-  }
-
-  function copyCreatedLink() {
-    if (!createdPageLink) return;
-    if (navigator.clipboard) navigator.clipboard.writeText(createdPageLink).then(() => alert("تم نسخ اللينك ✅")).catch(() => {});
-  }
-
-  fillCrDuaOptions();
 
   function shareWhatsApp() {
     if (!currentPerson) return;

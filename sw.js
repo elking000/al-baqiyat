@@ -1,4 +1,4 @@
-const CACHE_NAME = 'baqiyat-v18';
+const CACHE_NAME = 'baqiyat-v17';
 const RUNTIME_CACHE = 'baqiyat-runtime-v12';
 const PRECACHE = [
   '/',
