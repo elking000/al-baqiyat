@@ -36,7 +36,7 @@
         // مانيفست حقيقي يولّده الـ Service Worker لكل صفحة فقيد (مانيفست البلوب لا يقرأه آيفون فيرجع لملف ثابت خاطئ)
         var mSlug = "";
         try { mSlug = new URLSearchParams(window.location.search).get("page") || ""; } catch (e) {}
-        document.querySelector('link[rel="manifest"]').href = "/manifest.webmanifest" + (mSlug ? ("?page=" + encodeURIComponent(mSlug)) : "");
+        document.querySelector('link[rel="manifest"]').href = "/api/manifest" + (mSlug ? ("?page=" + encodeURIComponent(mSlug)) : "");
       } catch (e) {}
     })();
   </script>
@@ -1023,7 +1023,7 @@
         <div class="radio-icon-wrap">📻</div>
         <div class="radio-texts">
           <h4>إذاعة القرآن الكريم</h4>
-          <span class="radio-live-badge"><span class="live-dot"></span> بث مباشر من القاهرة 24 ساعة</span>
+          <span class="radio-live-badge" id="radio-live-badge"><span class="live-dot"></span> بث مباشر من القاهرة 24 ساعة</span>
         </div>
       </div>
       <button type="button" class="btn-radio-toggle" id="btn-radio-play" onclick="toggleRadio()">
@@ -1300,7 +1300,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "16";
+  const APP_VERSION = "17";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -2060,7 +2060,7 @@
   // وبين فشل حقيقي في البث، ويراقب بدء التشغيل بمهلة حتى لا يعلّق البث بصمت على الموبايل
   function playRadioSafe() {
     clearRadioStallTimer();
-    radioStallTimer = setTimeout(() => { if (radioWanted && radioAudio.paused) advanceRadioStream(); }, 12000);
+    radioStallTimer = setTimeout(() => { if (radioWanted && radioAudio.paused) advanceRadioStream(); }, 15000);
     radioAudio.play().then(updateRadioBtn).catch((err) => {
       if (err && err.name === "NotAllowedError") { updateRadioBtn(); return; }
       if (radioWanted) advanceRadioStream();
@@ -2071,11 +2071,16 @@
   document.addEventListener("pointerdown", function preloadHlsOnce() {
     document.removeEventListener("pointerdown", preloadHlsOnce);
     if (!radioAudio.canPlayType("application/vnd.apple.mpegurl")) loadHlsLib();
+    // تجهيز مصدر القاهرة مسبقاً (ربط وتحميل فقط دون تشغيل) حتى يبدأ فوراً عند الضغط ولا نهرب للمصدر الاحتياطي
+    if (!radioAudio.src && !radioHls && !radioHlsAttaching) setRadioStream(0);
   });
 
   function setRadioStream(index) {
     radioStreamIndex = index;
     const url = RADIO_STREAMS[index];
+    // صدق التسمية: شارة «من القاهرة» تظهر فقط مع مصدر القاهرة نفسه، والاحتياطي يُسمى بثاً قرآنياً عاماً
+    const badge = document.getElementById("radio-live-badge");
+    if (badge) badge.innerHTML = '<span class="live-dot"></span> ' + (index === 0 ? "بث مباشر من القاهرة 24 ساعة" : "بث قرآني مباشر 24 ساعة");
     destroyRadioHls();
     if (url.indexOf(".m3u8") !== -1) {
       if (radioAudio.canPlayType("application/vnd.apple.mpegurl")) {
@@ -2092,6 +2097,12 @@
         radioHls.attachMedia(radioAudio);
         radioHls.on(Hls.Events.ERROR, (ev, data) => {
           if (data && data.fatal && radioWanted) advanceRadioStream();
+        });
+        // أي جزء صوتي يصل فعلاً = البث حي: نجدّد مهلة الانتظار بدل إعلان فشله وهو يعمل
+        radioHls.on(Hls.Events.FRAG_BUFFERED, () => {
+          if (!radioWanted) return;
+          clearRadioStallTimer();
+          radioStallTimer = setTimeout(() => { if (radioWanted && radioAudio.paused) advanceRadioStream(); }, 15000);
         });
         if (radioWanted) playRadioSafe();
       });
@@ -2728,14 +2739,70 @@
     return `${toArabicDigits(m)}:${toArabicDigits(s < 10 ? '0' : '')}${toArabicDigits(s)}`;
   }
 
-  // دفتر العزاء
+  // دفتر العزاء — مزامنة عامة عبر تبويب guestbook في الشيت حتى تظهر الدعوات لكل الزوار لا لصاحب الجهاز فقط
+  const SCRIPT_BASE = ADMIN_URL.split("?")[0];
+  let remoteCondolences = null; // null يعني لم تصل بيانات الشيت بعد
+  let gbFetchStartedFor = "";
+
+  function escHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  }
+
+  function fetchCondolencesFromSheet() {
+    if (!currentPerson) return;
+    if (gbFetchStartedFor === currentPerson.slug) return;
+    gbFetchStartedFor = currentPerson.slug;
+    const slugAtFetch = currentPerson.slug;
+    window.handleGuestbookResponse = function(res) {
+      if (!currentPerson || currentPerson.slug !== slugAtFetch) return;
+      const list = [];
+      try {
+        if (res && res.table && res.table.rows) {
+          res.table.rows.forEach(r => {
+            const c = r.c;
+            if (!c) return;
+            const rowSlug = c[1] ? String(c[1].v != null ? c[1].v : (c[1].f || "")) : "";
+            if (cleanArabicSlug(rowSlug) !== cleanArabicSlug(slugAtFetch)) return;
+            const name = c[2] ? String(c[2].v != null ? c[2].v : (c[2].f || "")) : "";
+            const text = c[3] ? String(c[3].v != null ? c[3].v : (c[3].f || "")) : "";
+            let time = "";
+            if (c[0]) {
+              if (c[0].v instanceof Date) time = c[0].v.toLocaleDateString("ar-EG");
+              else if (c[0].f) time = String(c[0].f);
+              else if (c[0].v != null) time = String(c[0].v);
+            }
+            if (text) list.push({ name: name || "فاعل خير", text: text, time: time });
+          });
+        }
+      } catch(e) {}
+      remoteCondolences = list.reverse(); // الشيت مرتب من الأقدم، ونعرض الأحدث أولاً
+      loadCondolences();
+    };
+    const s = document.createElement("script");
+    s.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleGuestbookResponse&sheet=guestbook&_=${Date.now()}`;
+    s.onerror = function() {};
+    document.body.appendChild(s);
+  }
+
   function loadCondolences() {
     const feed = document.getElementById("guestbook-feed");
     feed.innerHTML = "";
-    let entries = [];
+    let local = [];
     try {
-      entries = JSON.parse(localStorage.getItem(guestbookKey) || "[]");
-    } catch(e) { entries = []; }
+      local = JSON.parse(localStorage.getItem(guestbookKey) || "[]");
+    } catch(e) { local = []; }
+
+    // اطلب النسخة العامة من الشيت (مرة واحدة لكل صفحة) وسيعاد الرسم عند وصولها
+    fetchCondolencesFromSheet();
+
+    let entries;
+    if (remoteCondolences) {
+      const seen = new Set(remoteCondolences.map(e => (e.name || "") + "|" + (e.text || "")));
+      const pendingLocal = local.filter(e => !seen.has((e.name || "") + "|" + (e.text || "")));
+      entries = pendingLocal.concat(remoteCondolences);
+    } else {
+      entries = local;
+    }
 
     if (entries.length === 0 && currentPerson) {
       entries = [
@@ -2744,15 +2811,15 @@
       ];
     }
 
-    entries.forEach(e => {
+    entries.slice(0, 100).forEach(e => {
       const item = document.createElement("div");
       item.className = "condolence-item";
       item.innerHTML = `
         <div class="condolence-meta">
-          <span class="condolence-user">${e.name}</span>
-          <span class="condolence-date">${e.time}</span>
+          <span class="condolence-user">${escHtml(e.name)}</span>
+          <span class="condolence-date">${escHtml(e.time)}</span>
         </div>
-        <p class="condolence-text">${e.text}</p>
+        <p class="condolence-text">${escHtml(e.text)}</p>
       `;
       feed.appendChild(item);
     });
@@ -2776,6 +2843,18 @@
 
     document.getElementById("guest-msg").value = "";
     loadCondolences();
+
+    // نشر عام: إرسال الدعاء إلى الشيت ليظهر لكل زوار الصفحة (يتطلب تحديث سكربت الإدارة)
+    try {
+      fetch(SCRIPT_BASE, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ action: "add_condolence", slug: currentPerson ? currentPerson.slug : "", name: author, message: text })
+      }).catch(() => {});
+      setTimeout(() => { gbFetchStartedFor = ""; fetchCondolencesFromSheet(); }, 8000);
+    } catch(e) {}
+
     alert("جزاك الله خيراً، تم تسجيل دعائك في دفتر العزاء 🤍");
   }
 

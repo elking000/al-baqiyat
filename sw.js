@@ -1,4 +1,4 @@
-const CACHE_NAME = 'baqiyat-v16';
+const CACHE_NAME = 'baqiyat-v17';
 const RUNTIME_CACHE = 'baqiyat-runtime-v12';
 const PRECACHE = [
   '/',
@@ -40,7 +40,8 @@ self.addEventListener('fetch', (e) => {
   }
 
   // مانيفست ديناميكي: التطبيق المثبت من صفحة فقيد يفتح على نفس الصفحة مباشرة (إصلاح آيفون)
-  if (url.origin === self.location.origin && url.pathname === '/manifest.webmanifest') {
+  // (نفس مخرجات دالة الخادم /api/manifest — هذه النسخة تخدم الزيارات التي يعمل فيها الـ Service Worker)
+  if (url.origin === self.location.origin && (url.pathname === '/manifest.webmanifest' || url.pathname === '/api/manifest')) {
     const mSlug = url.searchParams.get('page') || '';
     const dynManifest = {
       name: mSlug ? 'صدقة جارية' : 'منصة الباقيات',
