@@ -867,7 +867,7 @@
     #preview-watermark .wm-banner { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #d97706, #F59E0B); color: #2A1D00; text-align: center; font-weight: 800; font-size: 13px; padding: 9px 12px; box-shadow: 0 2px 12px rgba(0,0,0,.25); }
     #preview-watermark .wm-stamp { position: absolute; top: 52%; left: 50%; transform: translate(-50%,-50%) rotate(-16deg); font-size: 58px; font-weight: 900; color: rgba(185,28,28,.5); border: 5px solid rgba(185,28,28,.5); border-radius: 16px; padding: 2px 30px 10px; white-space: nowrap; animation: wmFlash 1.5s ease-in-out infinite; }
     @keyframes wmFlash { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
-    #preview-lock { position: fixed; inset: 0; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(180deg, #0E2A23 0%, #123B31 55%, #0B241E 100%); color: #fff; text-align: center; padding: 26px 20px; overflow-y: auto; }
+    #preview-lock { position: fixed; inset: 0; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(7, 26, 20, 0.62); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; text-align: center; padding: 26px 20px; overflow-y: auto; }
     #preview-lock .pl-photo { width: 118px; height: 118px; border-radius: 50%; object-fit: cover; border: 3.5px solid #C5A059; box-shadow: 0 8px 28px rgba(0,0,0,.45); background: #1d4a3e; }
     #preview-lock .pl-name { font-size: 24px; font-weight: 900; margin: 2px 0 0; }
     #preview-lock .pl-title { font-size: 13.5px; color: #D8C690; margin: 0; }
@@ -1085,7 +1085,7 @@
     <div class="create-card" id="create-success" style="display:none; text-align:center;">
       <div style="font-size:40px;">🎉</div>
       <h3 style="margin:6px 0; color:var(--primary);">تم إنشاء صفحة فقيدك بنجاح</h3>
-      <p style="font-size:13px; color:var(--text-muted); line-height:1.9;">صفحتك اتعملت ✅ وهي دلوقتي نسخة معاينة مقفلة (بتظهر الاسم والصورة بس) لحد التفعيل.<br>لينك صفحتك:</p>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.9;">صفحتك اتعملت ✅ وهي دلوقتي نسخة معاينة: بتظهر ضبابية ورا تنبيه التفعيل لحد ما تتفعّل.<br>لينك صفحتك:</p>
       <div id="cs-link" dir="ltr" style="background:#F4F7F5; border:1.5px dashed var(--accent); border-radius:12px; padding:10px; font-size:13.5px; font-weight:700; color:var(--primary); word-break:break-all;"></div>
       <p id="cs-status" style="font-size:12px; color:var(--text-muted); margin:8px 0;">جارٍ تجهيز اللينك... قد يستغرق ثواني قليلة.</p>
       <div style="display:flex; gap:8px; margin-top:10px;">
@@ -1415,7 +1415,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "21";
+  const APP_VERSION = "22";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -1764,6 +1764,7 @@
     const wa = document.getElementById("pl-wa");
     if (wa) wa.href = "https://wa.me/201092562271?text=" + encodeURIComponent("محتاج أفعّل الصفحة، ممكن أرقام التحويل؟\n" + pageUrl);
     lock.style.display = "flex";
+    document.body.style.overflow = "hidden";
   }
 
   function buildMemorialUI(person) {
@@ -1782,12 +1783,6 @@
       document.getElementById("d-title").textContent = person.title;
       document.getElementById("d-photo").src = person.photo;
 
-      // قفل كامل لصفحات المعاينة (قرار كريم 2026-11-26): اسم وصورة + بوب «لم يتم الدفع» فقط
-      if (person.status === "preview") {
-        if (wm) wm.style.display = "none";
-        showPreviewLock(person);
-        return;
-      }
       // الكشف الدقيق عن نوع الصفحة (متوفى / متوفية / مجموعة) لضبط صيغ الأدعية
       const isGroup = !!(person.title && (person.title.includes("لهم") || person.title.includes("المرحومون") || person.title.includes("المرحومين")));
       const isFem = !isGroup && ((person.title && (person.title.includes("لها") || person.title.includes("المرحومة") || person.title.includes("الفقيدة"))) ||
@@ -1910,6 +1905,12 @@
     } finally {
       document.getElementById("loader").style.display = "none";
       document.getElementById("deceased-view").style.display = "block";
+      // صفحات المعاينة: الصفحة كاملة خلف طبقة ضبابية وبوب «لم يتم الدفع» فوقها (قرار كريم 2026-11-26)
+      if (person && person.status === "preview") {
+        const wmF = document.getElementById("preview-watermark");
+        if (wmF) wmF.style.display = "none";
+        showPreviewLock(person);
+      }
     }
   }
 
