@@ -867,16 +867,25 @@
     #preview-watermark .wm-banner { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #d97706, #F59E0B); color: #2A1D00; text-align: center; font-weight: 800; font-size: 13px; padding: 9px 12px; box-shadow: 0 2px 12px rgba(0,0,0,.25); }
     #preview-watermark .wm-stamp { position: absolute; top: 52%; left: 50%; transform: translate(-50%,-50%) rotate(-16deg); font-size: 58px; font-weight: 900; color: rgba(185,28,28,.5); border: 5px solid rgba(185,28,28,.5); border-radius: 16px; padding: 2px 30px 10px; white-space: nowrap; animation: wmFlash 1.5s ease-in-out infinite; }
     @keyframes wmFlash { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
-    #preview-lock { position: fixed; inset: 0; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(7, 26, 20, 0.62); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; text-align: center; padding: 26px 20px; overflow-y: auto; }
-    #preview-lock .pl-photo { width: 118px; height: 118px; border-radius: 50%; object-fit: cover; border: 3.5px solid #C5A059; box-shadow: 0 8px 28px rgba(0,0,0,.45); background: #1d4a3e; }
-    #preview-lock .pl-name { font-size: 24px; font-weight: 900; margin: 2px 0 0; }
-    #preview-lock .pl-title { font-size: 13.5px; color: #D8C690; margin: 0; }
-    #preview-lock .pl-card { background: #fff; color: #1c2b27; border-radius: 20px; padding: 22px 18px; max-width: 430px; width: 100%; box-shadow: 0 18px 50px rgba(0,0,0,.4); margin-top: 8px; }
-    #preview-lock .pl-locked { font-size: 30px; font-weight: 900; color: #B91C1C; margin: 0 0 6px; }
-    #preview-lock .pl-desc { font-size: 13.5px; line-height: 2; color: #45554f; margin: 0 0 10px; }
-    #preview-lock .pl-price { font-size: 15px; font-weight: 800; color: #0E2A23; background: #FDF6E3; border: 1px solid #E8C87A; border-radius: 12px; padding: 9px; line-height: 2; }
-    #preview-lock .pl-wa { display: block; margin-top: 14px; background: #25D366; color: #fff; font-size: 17px; font-weight: 900; text-decoration: none; border-radius: 14px; padding: 14px; box-shadow: 0 8px 22px rgba(37,211,102,.4); }
-    #preview-lock .pl-note { font-size: 12px; color: #6b7a75; margin: 10px 0 0; line-height: 1.9; }
+    #preview-lock { position: fixed; inset: 0; z-index: 3000; display: none; background: linear-gradient(180deg, rgba(7,26,20,0) 34%, rgba(7,26,20,.38) 78%); }
+    #preview-lock .pl-sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: 82vh; overflow-y: auto; background: #FDFBF5; color: #1c2b27; border-radius: 28px 28px 0 0; padding: 12px 20px 24px; box-shadow: 0 -18px 50px rgba(0,0,0,.45); text-align: center; animation: plUp .45s ease; }
+    @keyframes plUp { from { transform: translateY(60px); opacity: .4; } to { transform: translateY(0); opacity: 1; } }
+    #preview-lock .pl-handle { width: 46px; height: 5px; border-radius: 99px; background: #D8C690; margin: 2px auto 12px; }
+    #preview-lock .pl-h { font-size: 19px; font-weight: 900; margin: 0; color: #0E2A23; }
+    #preview-lock .pl-sub { color: #6b7a75; font-size: 12.5px; margin: 4px 0 0; }
+    #preview-lock .pl-feats { margin: 13px 0 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; font-size: 13.5px; font-weight: 700; text-align: start; }
+    #preview-lock .pl-feats div::before { content: "✓"; color: #128C4B; font-weight: 900; margin-inline-end: 6px; }
+    #preview-lock .pl-pricerow { display: flex; align-items: center; justify-content: space-between; background: #FDF6E3; border: 1px solid #E8C87A; border-radius: 12px; padding: 10px 14px; margin: 12px 0 10px; }
+    #preview-lock .pl-pricerow .lbl { font-size: 13px; font-weight: 800; color: #7A5B12; }
+    #preview-lock .pl-pricerow .val { font-size: 19px; font-weight: 900; color: #0E2A23; }
+    #preview-lock .pl-numrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #F4F7F5; border: 1px solid #E1E8E4; border-radius: 12px; padding: 8px 12px; margin-top: 8px; font-size: 13.5px; }
+    #preview-lock .pl-numrow .who { font-weight: 800; color: #45554f; }
+    #preview-lock .pl-numrow .num { font-weight: 900; letter-spacing: .4px; }
+    .copy-num { background: #fff; border: 1.5px solid #C5A059; color: #7A5B12; font-family: inherit; font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 4px 13px; cursor: pointer; white-space: nowrap; }
+    .copy-num:active { background: #FDF6E3; }
+    #preview-lock .pl-wa { display: block; margin-top: 14px; background: #25D366; color: #fff; font-size: 16.5px; font-weight: 900; text-decoration: none; border-radius: 14px; padding: 14px; box-shadow: 0 8px 22px rgba(37,211,102,.35); }
+    #preview-lock .pl-sample { display: inline-block; margin-top: 13px; color: #0E2A23; font-size: 13.5px; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
+    #preview-lock .pl-dua { margin: 12px 0 0; font-size: 12.5px; color: #8a6d1f; line-height: 1.9; }
 
     /* كارت المشاركة والـ QR */
     .qr-showcase { background: #FFF; border: 1px solid var(--card-border); border-radius: 20px; padding: 20px 14px; text-align: center; margin-bottom: 12px; }
@@ -1021,15 +1030,22 @@
 
   <!-- قفل صفحات المعاينة: اسم وصورة + بوب التفعيل فقط (قرار كريم 2026-11-26) -->
   <div id="preview-lock">
-    <img id="pl-photo" class="pl-photo" alt="صورة الفقيد">
-    <h2 class="pl-name" id="pl-name"></h2>
-    <p class="pl-title" id="pl-title"></p>
-    <div class="pl-card">
-      <p class="pl-locked">🔒 لم يتم الدفع</p>
-      <p class="pl-desc">دي نسخة معاينة من الصفحة — مقفلة حالياً وبتظهر الاسم والصورة بس.<br>فعّلها عشان تفتح بكل مزاياها: المصحف الكامل، إذاعة القرآن، السبحة، ودفتر العزاء لكل زوارها.</p>
-      <div class="pl-price">تفعيل الصفحة: <strong>160 جنيه</strong> بس<br>فودافون كاش: <strong dir="ltr">01092562271</strong> — إنستا باي: <strong dir="ltr">01229385401</strong></div>
-      <a id="pl-wa" class="pl-wa" href="#" target="_blank">فعّل صفحتك واتساب 📲</a>
-      <p class="pl-note">دوس الزرار الأخضر وكلمنا واتساب، أو حوّل على الأرقام اللي فوق وابعت صورة التحويل وهنفعّل صفحتك فوراً 🤍</p>
+    <div class="pl-sheet">
+      <div class="pl-handle"></div>
+      <h3 class="pl-h">هذه الصفحة نسخة معاينة</h3>
+      <p class="pl-sub">بالتفعيل تُفتح لزوارها جميع المزايا:</p>
+      <div class="pl-feats">
+        <div>المصحف كاملاً</div>
+        <div>إذاعة القرآن الكريم</div>
+        <div>السبحة والأدعية</div>
+        <div>دفتر العزاء</div>
+      </div>
+      <div class="pl-pricerow"><span class="lbl">قيمة التفعيل</span><span class="val">160 جنيه</span></div>
+      <div class="pl-numrow"><span class="who">فودافون كاش</span><span class="num" dir="ltr">01092562271</span><button type="button" class="copy-num" onclick="copyPayNum('01092562271', this)">نسخ</button></div>
+      <div class="pl-numrow"><span class="who">إنستا باي</span><span class="num" dir="ltr">01229385401</span><button type="button" class="copy-num" onclick="copyPayNum('01229385401', this)">نسخ</button></div>
+      <a id="pl-wa" class="pl-wa" href="#" target="_blank">تفعيل الصفحة عبر واتساب 📲</a>
+      <a class="pl-sample" href="https://al-baqiyat.site/?page=silman-eid" target="_blank">شاهد نموذجاً حياً لصفحة مفعّلة</a>
+      <p class="pl-dua" id="pl-dua">رحمه الله رحمةً واسعة وأسكنه فسيح جناته 🤍</p>
     </div>
   </div>
 
@@ -1085,7 +1101,7 @@
     <div class="create-card" id="create-success" style="display:none; text-align:center;">
       <div style="font-size:40px;">🎉</div>
       <h3 style="margin:6px 0; color:var(--primary);">تم إنشاء صفحة فقيدك بنجاح</h3>
-      <p style="font-size:13px; color:var(--text-muted); line-height:1.9;">صفحتك اتعملت ✅ وهي دلوقتي نسخة معاينة: بتظهر ضبابية ورا تنبيه التفعيل لحد ما تتفعّل.<br>لينك صفحتك:</p>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.9;">صفحتك اتعملت ✅ وهي دلوقتي نسخة معاينة: بتظهر وعليها تنبيه التفعيل لحد ما تتفعّل.<br>لينك صفحتك:</p>
       <div id="cs-link" dir="ltr" style="background:#F4F7F5; border:1.5px dashed var(--accent); border-radius:12px; padding:10px; font-size:13.5px; font-weight:700; color:var(--primary); word-break:break-all;"></div>
       <p id="cs-status" style="font-size:12px; color:var(--text-muted); margin:8px 0;">جارٍ تجهيز اللينك... قد يستغرق ثواني قليلة.</p>
       <div style="display:flex; gap:8px; margin-top:10px;">
@@ -1094,7 +1110,7 @@
       </div>
       <div style="background:#FDF6E3; border:1px solid #E8C87A; border-radius:14px; padding:12px; margin-top:14px; text-align:right;">
         <strong style="color:#7A5B12;">لتفعيل الصفحة نهائياً وفتحها بكل مزاياها:</strong>
-        <p style="font-size:13px; line-height:2; margin:6px 0;">حوّل <strong>160 جنيه</strong> على فودافون كاش: <strong dir="ltr">01092562271</strong><br>أو إنستا باي: <strong dir="ltr">01229385401</strong><br>ثم ابعت صورة التحويل واتساب وسنفعّل صفحتك فوراً.</p>
+        <p style="font-size:13px; line-height:2; margin:6px 0;">حوّل <strong>160 جنيه</strong> على فودافون كاش: <strong dir="ltr">01092562271</strong> <button type="button" class="copy-num" onclick="copyPayNum('01092562271', this)">نسخ</button><br>أو إنستا باي: <strong dir="ltr">01229385401</strong> <button type="button" class="copy-num" onclick="copyPayNum('01229385401', this)">نسخ</button><br>ثم ابعت صورة التحويل واتساب وسنفعّل صفحتك فوراً.</p>
         <a id="cs-wa" href="#" target="_blank" class="btn-main-action" style="text-decoration:none; background:#25D366;">إرسال تأكيد الدفع واتساب 📲</a>
       </div>
     </div>
@@ -1415,7 +1431,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "22";
+  const APP_VERSION = "23";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -1750,21 +1766,44 @@
     return m && m[1] ? ("https://lh3.googleusercontent.com/d/" + m[1]) : url;
   }
 
-  // شاشة قفل المعاينة: تملأ الاسم والصورة وزرار تفعيل واتساب برسالة جاهزة
+  // شاشة قفل المعاينة (تصميم ورقة المزايا): تملأ زرار الواتساب ودعاء الختام حسب نوع الصفحة
   function showPreviewLock(person) {
     const lock = document.getElementById("preview-lock");
     if (!lock) return;
-    const ph = document.getElementById("pl-photo");
-    if (ph && person.photo) ph.src = person.photo;
-    const nm = document.getElementById("pl-name");
-    if (nm) nm.textContent = person.name || "";
-    const tt = document.getElementById("pl-title");
-    if (tt) tt.textContent = person.title || "";
     const pageUrl = BASE_URL + "/?page=" + encodeURIComponent(person.slug || "");
     const wa = document.getElementById("pl-wa");
     if (wa) wa.href = "https://wa.me/201092562271?text=" + encodeURIComponent("محتاج أفعّل الصفحة، ممكن أرقام التحويل؟\n" + pageUrl);
-    lock.style.display = "flex";
+    const duaEl = document.getElementById("pl-dua");
+    if (duaEl && person.title) {
+      if (person.title.includes("لهم")) duaEl.textContent = "رحمهم الله رحمةً واسعة وأسكنهم فسيح جناته 🤍";
+      else if (person.title.includes("لها")) duaEl.textContent = "رحمها الله رحمةً واسعة وأسكنها فسيح جناته 🤍";
+    }
+    lock.style.display = "block";
     document.body.style.overflow = "hidden";
+  }
+
+  // نسخ رقم تحويل (فودافون كاش / إنستا باي) بضغطة واحدة
+  function copyPayNum(num, btn) {
+    const done = () => {
+      if (!btn) return;
+      const old = btn.textContent;
+      btn.textContent = "تم النسخ ✓";
+      setTimeout(() => { btn.textContent = old; }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(num).then(done).catch(() => { fallbackCopyPay_(num); done(); });
+    } else { fallbackCopyPay_(num); done(); }
+  }
+  function fallbackCopyPay_(num) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = num;
+      ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    } catch (e) {}
   }
 
   function buildMemorialUI(person) {
