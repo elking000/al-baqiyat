@@ -867,6 +867,16 @@
     #preview-watermark .wm-banner { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #d97706, #F59E0B); color: #2A1D00; text-align: center; font-weight: 800; font-size: 13px; padding: 9px 12px; box-shadow: 0 2px 12px rgba(0,0,0,.25); }
     #preview-watermark .wm-stamp { position: absolute; top: 52%; left: 50%; transform: translate(-50%,-50%) rotate(-16deg); font-size: 58px; font-weight: 900; color: rgba(185,28,28,.5); border: 5px solid rgba(185,28,28,.5); border-radius: 16px; padding: 2px 30px 10px; white-space: nowrap; animation: wmFlash 1.5s ease-in-out infinite; }
     @keyframes wmFlash { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+    #preview-lock { position: fixed; inset: 0; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(180deg, #0E2A23 0%, #123B31 55%, #0B241E 100%); color: #fff; text-align: center; padding: 26px 20px; overflow-y: auto; }
+    #preview-lock .pl-photo { width: 118px; height: 118px; border-radius: 50%; object-fit: cover; border: 3.5px solid #C5A059; box-shadow: 0 8px 28px rgba(0,0,0,.45); background: #1d4a3e; }
+    #preview-lock .pl-name { font-size: 24px; font-weight: 900; margin: 2px 0 0; }
+    #preview-lock .pl-title { font-size: 13.5px; color: #D8C690; margin: 0; }
+    #preview-lock .pl-card { background: #fff; color: #1c2b27; border-radius: 20px; padding: 22px 18px; max-width: 430px; width: 100%; box-shadow: 0 18px 50px rgba(0,0,0,.4); margin-top: 8px; }
+    #preview-lock .pl-locked { font-size: 30px; font-weight: 900; color: #B91C1C; margin: 0 0 6px; }
+    #preview-lock .pl-desc { font-size: 13.5px; line-height: 2; color: #45554f; margin: 0 0 10px; }
+    #preview-lock .pl-price { font-size: 15px; font-weight: 800; color: #0E2A23; background: #FDF6E3; border: 1px solid #E8C87A; border-radius: 12px; padding: 9px; line-height: 2; }
+    #preview-lock .pl-wa { display: block; margin-top: 14px; background: #25D366; color: #fff; font-size: 17px; font-weight: 900; text-decoration: none; border-radius: 14px; padding: 14px; box-shadow: 0 8px 22px rgba(37,211,102,.4); }
+    #preview-lock .pl-note { font-size: 12px; color: #6b7a75; margin: 10px 0 0; line-height: 1.9; }
 
     /* كارت المشاركة والـ QR */
     .qr-showcase { background: #FFF; border: 1px solid var(--card-border); border-radius: 20px; padding: 20px 14px; text-align: center; margin-bottom: 12px; }
@@ -1009,6 +1019,20 @@
     <div class="wm-stamp">معاينة</div>
   </div>
 
+  <!-- قفل صفحات المعاينة: اسم وصورة + بوب التفعيل فقط (قرار كريم 2026-11-26) -->
+  <div id="preview-lock">
+    <img id="pl-photo" class="pl-photo" alt="صورة الفقيد">
+    <h2 class="pl-name" id="pl-name"></h2>
+    <p class="pl-title" id="pl-title"></p>
+    <div class="pl-card">
+      <p class="pl-locked">🔒 لم يتم الدفع</p>
+      <p class="pl-desc">دي نسخة معاينة من الصفحة — مقفلة حالياً وبتظهر الاسم والصورة بس.<br>فعّلها عشان تفتح بكل مزاياها: المصحف الكامل، إذاعة القرآن، السبحة، ودفتر العزاء لكل زوارها.</p>
+      <div class="pl-price">تفعيل الصفحة: <strong>160 جنيه</strong> بس<br>فودافون كاش: <strong dir="ltr">01092562271</strong> — إنستا باي: <strong dir="ltr">01229385401</strong></div>
+      <a id="pl-wa" class="pl-wa" href="#" target="_blank">فعّل صفحتك واتساب 📲</a>
+      <p class="pl-note">دوس الزرار الأخضر وكلمنا واتساب، أو حوّل على الأرقام اللي فوق وابعت صورة التحويل وهنفعّل صفحتك فوراً 🤍</p>
+    </div>
+  </div>
+
   <!-- نموذج إنشاء صفحة صدقة جارية (خدمة ذاتية) -->
   <section id="create-view" style="display:none;">
     <img src="/logo.png" alt="شعار منصة الباقيات" class="badge-logo-img">
@@ -1061,7 +1085,7 @@
     <div class="create-card" id="create-success" style="display:none; text-align:center;">
       <div style="font-size:40px;">🎉</div>
       <h3 style="margin:6px 0; color:var(--primary);">تم إنشاء صفحة فقيدك بنجاح</h3>
-      <p style="font-size:13px; color:var(--text-muted); line-height:1.9;">صفحتك جاهزة الآن كمعاينة كاملة بكل المزايا (المصحف، الإذاعة، السبحة، دفتر العزاء).<br>لينك صفحتك:</p>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.9;">صفحتك اتعملت ✅ وهي دلوقتي نسخة معاينة مقفلة (بتظهر الاسم والصورة بس) لحد التفعيل.<br>لينك صفحتك:</p>
       <div id="cs-link" dir="ltr" style="background:#F4F7F5; border:1.5px dashed var(--accent); border-radius:12px; padding:10px; font-size:13.5px; font-weight:700; color:var(--primary); word-break:break-all;"></div>
       <p id="cs-status" style="font-size:12px; color:var(--text-muted); margin:8px 0;">جارٍ تجهيز اللينك... قد يستغرق ثواني قليلة.</p>
       <div style="display:flex; gap:8px; margin-top:10px;">
@@ -1069,8 +1093,8 @@
         <button type="button" class="btn-main-action" style="flex:1;" onclick="copyCreatedLink()">نسخ اللينك 🔗</button>
       </div>
       <div style="background:#FDF6E3; border:1px solid #E8C87A; border-radius:14px; padding:12px; margin-top:14px; text-align:right;">
-        <strong style="color:#7A5B12;">لتفعيل الصفحة نهائياً وإزالة ختم المعاينة:</strong>
-        <p style="font-size:13px; line-height:2; margin:6px 0;">حوّل <strong>190 جنيه</strong> على فودافون كاش: <strong dir="ltr">01092562271</strong><br>أو إنستا باي: <strong dir="ltr">01229385401</strong><br>ثم ابعت صورة التحويل واتساب وسنفعّل صفحتك فوراً.</p>
+        <strong style="color:#7A5B12;">لتفعيل الصفحة نهائياً وفتحها بكل مزاياها:</strong>
+        <p style="font-size:13px; line-height:2; margin:6px 0;">حوّل <strong>160 جنيه</strong> على فودافون كاش: <strong dir="ltr">01092562271</strong><br>أو إنستا باي: <strong dir="ltr">01229385401</strong><br>ثم ابعت صورة التحويل واتساب وسنفعّل صفحتك فوراً.</p>
         <a id="cs-wa" href="#" target="_blank" class="btn-main-action" style="text-decoration:none; background:#25D366;">إرسال تأكيد الدفع واتساب 📲</a>
       </div>
     </div>
@@ -1391,7 +1415,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "20";
+  const APP_VERSION = "21";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -1726,6 +1750,22 @@
     return m && m[1] ? ("https://lh3.googleusercontent.com/d/" + m[1]) : url;
   }
 
+  // شاشة قفل المعاينة: تملأ الاسم والصورة وزرار تفعيل واتساب برسالة جاهزة
+  function showPreviewLock(person) {
+    const lock = document.getElementById("preview-lock");
+    if (!lock) return;
+    const ph = document.getElementById("pl-photo");
+    if (ph && person.photo) ph.src = person.photo;
+    const nm = document.getElementById("pl-name");
+    if (nm) nm.textContent = person.name || "";
+    const tt = document.getElementById("pl-title");
+    if (tt) tt.textContent = person.title || "";
+    const pageUrl = BASE_URL + "/?page=" + encodeURIComponent(person.slug || "");
+    const wa = document.getElementById("pl-wa");
+    if (wa) wa.href = "https://wa.me/201092562271?text=" + encodeURIComponent("محتاج أفعّل الصفحة، ممكن أرقام التحويل؟\n" + pageUrl);
+    lock.style.display = "flex";
+  }
+
   function buildMemorialUI(person) {
     try {
       currentPerson = person;
@@ -1741,6 +1781,13 @@
       document.getElementById("d-name").textContent = person.name;
       document.getElementById("d-title").textContent = person.title;
       document.getElementById("d-photo").src = person.photo;
+
+      // قفل كامل لصفحات المعاينة (قرار كريم 2026-11-26): اسم وصورة + بوب «لم يتم الدفع» فقط
+      if (person.status === "preview") {
+        if (wm) wm.style.display = "none";
+        showPreviewLock(person);
+        return;
+      }
       // الكشف الدقيق عن نوع الصفحة (متوفى / متوفية / مجموعة) لضبط صيغ الأدعية
       const isGroup = !!(person.title && (person.title.includes("لهم") || person.title.includes("المرحومون") || person.title.includes("المرحومين")));
       const isFem = !isGroup && ((person.title && (person.title.includes("لها") || person.title.includes("المرحومة") || person.title.includes("الفقيدة"))) ||
@@ -3072,7 +3119,15 @@
     if (phoneDigits.length < 10) { alert("يرجى كتابة رقم واتساب صحيح حتى نتمكن من متابعة التفعيل معك 🤍"); return; }
 
     // اللينك رندوم دايماً — بدون أي اختيار من العميل
-    const slug = "page-" + Math.random().toString(36).substring(2, 10);
+    const AR2EN = { "ا": "a", "أ": "a", "إ": "e", "آ": "a", "ب": "b", "ت": "t", "ث": "s", "ج": "g", "ح": "h", "خ": "kh", "د": "d", "ذ": "z", "ر": "r", "ز": "z", "س": "s", "ش": "sh", "ص": "s", "ض": "d", "ط": "t", "ظ": "z", "ع": "a", "غ": "gh", "ف": "f", "ق": "q", "ك": "k", "ل": "l", "م": "m", "ن": "n", "ه": "h", "و": "w", "ي": "y", "ة": "a", "ى": "a", "ؤ": "w", "ئ": "y" };
+    const nameLetters = (name || "").replace(/[^a-zA-Z\u0621-\u064A]/g, "");
+    let initials = "";
+    const L1 = nameLetters.charAt(0), L2 = nameLetters.charAt(1);
+    if (L1) initials += /[a-zA-Z]/.test(L1) ? L1.toLowerCase() : (AR2EN[L1] || "");
+    if (L2) initials += /[a-zA-Z]/.test(L2) ? L2.toLowerCase() : (L2 === "و" ? "o" : (AR2EN[L2] || ""));
+    let slug = initials;
+    const digitsNeeded = initials ? 6 : 8;
+    for (let i = 0; i < digitsNeeded; i++) slug += Math.floor(Math.random() * 10);
 
     const sel = document.getElementById("cr-dua-select");
     let dua = "";
@@ -3104,7 +3159,7 @@
         document.getElementById("create-success").style.display = "block";
         document.getElementById("cs-link").textContent = createdPageLink;
         document.getElementById("cs-open").href = createdPageLink;
-        const waText = encodeURIComponent("السلام عليكم، أنشأت صفحة صدقة جارية باسم (" + name + ") ولينكها: " + createdPageLink + " — وقمت بتحويل 190 جنيه، برجاء تفعيل الصفحة 🤍");
+        const waText = encodeURIComponent("السلام عليكم، أنشأت صفحة صدقة جارية باسم (" + name + ") ولينكها: " + createdPageLink + " — وقمت بتحويل 160 جنيه، برجاء تفعيل الصفحة 🤍");
         document.getElementById("cs-wa").href = "https://api.whatsapp.com/send?phone=201092562271&text=" + waText;
         window.scrollTo(0, 0);
         confirmCreatedPage(name, phoneDigits, slug, 0);
