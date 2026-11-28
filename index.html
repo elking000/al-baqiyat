@@ -1473,7 +1473,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "29";
+  const APP_VERSION = "30";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -2573,7 +2573,15 @@
     const lines = view.querySelectorAll(".qline");
     if (!frame || !lines.length) return;
     const inFs = !!(frame.closest && frame.closest(".reader-fs"));
-    const avail = frame.clientWidth - 18;
+    let avail = frame.clientWidth - 18;
+    if (inFs) {
+      // ملء الشاشة على شاشة عريضة: صفحة المصحف المطبوع طولية النسبة، فلو مُدّت الأسطر لعرض
+      // الإطار كله لصار الخط محكوماً بالارتفاع أقصر من نصف العرض فتتعطل الكشيدة ويبقى النص
+      // عموداً ملتصقاً باليمين. الحل: عرض فعّال = الأصغر من عرض الإطار وارتفاعه × 0.72
+      // (نسبة صفحة مصحف المدينة)، والإطار يتوسّط الشاشة — وعلى الفون العرض هو الأصغر أصلاً فلا يتغير شيء.
+      const effW = Math.min(view.clientWidth - 8, Math.round(frame.clientHeight * 0.72));
+      if (effW > 120) { frame.style.width = effW + "px"; frame.style.margin = "0 auto"; avail = effW - 18; }
+    } else if (frame.style.width) { frame.style.width = ""; frame.style.margin = ""; }
     if (avail < 80) { // القسم مخفي بعد — أعد المحاولة حتى يظهر
       if (fitRetryCount < 12) { fitRetryCount++; setTimeout(fitTextPage, 300); }
       return;
