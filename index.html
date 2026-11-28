@@ -648,7 +648,8 @@
       font-family: 'UthmanicHafs', 'Amiri', serif;
       font-size: 30px;
       line-height: 1.9;
-      color: #0B3D2E;
+      color: #171410;
+      -webkit-text-stroke: .3px currentColor;
       text-align: right;
       white-space: nowrap;
     }
@@ -814,6 +815,11 @@
       margin-bottom: 10px;
       font-family: inherit;
     }
+    .reader-zoom-bar { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
+    .btn-zoom { background: #fff; border: 1.5px solid #C5A059; color: #6b5510; padding: 6px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 800; cursor: pointer; font-family: inherit; }
+    .reader-zoom-label { font-size: 12.5px; font-weight: 800; color: #6b5510; min-width: 44px; text-align: center; }
+    .mushaf-text-frame.zoomed { justify-content: flex-start; overflow-y: auto; }
+    .mushaf-text-frame.zoomed .qline { white-space: normal; text-align: justify; }
     .reader-card.reader-fs {
       position: fixed;
       inset: 0;
@@ -1288,6 +1294,12 @@
         <div class="reader-card" id="reader-card">
           
           <button type="button" id="btn-reader-fs" class="btn-reader-fs" onclick="toggleReaderFullscreen()">⛶ قراءة بملء الشاشة — خط أكبر وصفحة كاملة</button>
+          <div class="reader-zoom-bar" id="reader-zoom-bar">
+            <button type="button" class="btn-zoom" onclick="readerZoomStep(1)">＋ تكبير</button>
+            <span class="reader-zoom-label" id="reader-zoom-label">١٠٠٪</span>
+            <button type="button" class="btn-zoom" onclick="readerZoomStep(-1)">－ تصغير</button>
+            <button type="button" class="btn-zoom" onclick="readerZoomReset()">⟲ إعادة</button>
+          </div>
           <div class="mushaf-nav-header">
             <button type="button" class="btn-bookmark-action" onclick="jumpToMushafBookmark()">🔖 آخر علامة وقف</button>
             <div class="mushaf-direct-inputs">
@@ -1467,7 +1479,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "25";
+  const APP_VERSION = "26";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -2396,9 +2408,39 @@
     const on = (typeof force === "boolean") ? force : !card.classList.contains("reader-fs");
     card.classList.toggle("reader-fs", on);
     document.body.classList.toggle("reader-fs-open", on);
+    applyReaderZoom();
     const btn = document.getElementById("btn-reader-fs");
     if (btn) btn.textContent = on ? "✕ إغلاق ملء الشاشة" : "⛶ قراءة بملء الشاشة — خط أكبر وصفحة كاملة";
     if (on) setTimeout(fitTextPage, 80);
+  }
+  // ===== تكبير/تصغير القارئ (المصوّر والنصّي) =====
+  const READER_ZOOM_STEPS = [1, 1.3, 1.6, 2, 2.5, 3];
+  let readerZoomIdx = 0;
+  let readerZoom = 1;
+  function readerZoomStep(dir) {
+    readerZoomIdx = Math.max(0, Math.min(READER_ZOOM_STEPS.length - 1, readerZoomIdx + dir));
+    readerZoom = READER_ZOOM_STEPS[readerZoomIdx];
+    applyReaderZoom();
+  }
+  function readerZoomReset() { readerZoomIdx = 0; readerZoom = 1; applyReaderZoom(); }
+  function applyReaderZoom() {
+    const label = document.getElementById("reader-zoom-label");
+    if (label) label.textContent = toArabicDigits(Math.round(readerZoom * 100)) + "٪";
+    const img = document.getElementById("mushaf-page-image");
+    const stage = document.getElementById("mushaf-stage");
+    if (img && mushafMode === "image") {
+      if (readerZoom > 1) {
+        img.style.width = (readerZoom * 100) + "%";
+        img.style.maxWidth = "none";
+        img.style.height = "auto";
+        img.style.maxHeight = "none";
+        if (stage) stage.style.overflow = "auto";
+      } else {
+        img.style.width = ""; img.style.maxWidth = ""; img.style.height = ""; img.style.maxHeight = "";
+        if (stage) stage.style.overflow = "";
+      }
+    }
+    if (mushafMode === "text") fitTextPage();
   }
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleReaderFullscreen(false); });
 
@@ -2475,15 +2517,49 @@
     const natural = lineEl.scrollWidth;
     if (!natural || natural >= targetWidth - 2) return;
     if (natural < targetWidth * 0.5) return; // سطر قصير جداً (آخر سطر بآية/سورة) يبقى كما في المطبوع
-    let guard = 0;
-    while (lineEl.scrollWidth < targetWidth - 2 && guard < 80) {
+    const collect = () => {
       const nodes = lineTextNodes(lineEl);
       const allPos = [];
       nodes.forEach((n, ni) => { stretchPositions(n.nodeValue).forEach(p => allPos.push([ni, p])); });
-      if (!allPos.length) break;
-      const pick = allPos[guard % allPos.length];
-      const node = nodes[pick[0]];
+      return { nodes, allPos };
+    };
+    // مرحلة ١: جولات جماعية — مدّ واحد عند كل مواضع التمديد في الجولة الواحدة
+    let rounds = 0;
+    while (lineEl.scrollWidth < targetWidth - 2 && rounds < 12) {
+      const c1 = collect();
+      if (!c1.allPos.length) break;
+      const byNode = {};
+      c1.allPos.forEach(([ni, p]) => { (byNode[ni] = byNode[ni] || []).push(p); });
+      let changed = false;
+      Object.keys(byNode).forEach(ni => {
+        const positions = byNode[ni].sort((a, b) => b - a);
+        let v = c1.nodes[ni].nodeValue;
+        positions.forEach(p => { v = v.slice(0, p) + KASHIDA_CH + v.slice(p); });
+        if (v !== c1.nodes[ni].nodeValue) { c1.nodes[ni].nodeValue = v; changed = true; }
+      });
+      if (!changed) break;
+      rounds++;
+    }
+    // مرحلة ٢: ضبط دقيق — مدّ واحد في كل مرة حتى الامتلاء
+    let guard = 0;
+    while (lineEl.scrollWidth < targetWidth - 2 && guard < 160) {
+      const c2 = collect();
+      if (!c2.allPos.length) break;
+      const pick = c2.allPos[guard % c2.allPos.length];
+      const node = c2.nodes[pick[0]];
       node.nodeValue = node.nodeValue.slice(0, pick[1]) + KASHIDA_CH + node.nodeValue.slice(pick[1]);
+      guard++;
+    }
+    // مرحلة ٣: لو تجاوز العرض المستهدف، إزالة آخر مدّ واحد في كل مرة
+    guard = 0;
+    while (lineEl.scrollWidth > targetWidth && guard < 160) {
+      const nodes = lineTextNodes(lineEl);
+      let done = false;
+      for (let i = nodes.length - 1; i >= 0 && !done; i--) {
+        const idx = nodes[i].nodeValue.lastIndexOf(KASHIDA_CH);
+        if (idx !== -1) { nodes[i].nodeValue = nodes[i].nodeValue.slice(0, idx) + nodes[i].nodeValue.slice(idx + 1); done = true; }
+      }
+      if (!done) break;
       guard++;
     }
   }
@@ -2508,9 +2584,9 @@
     lines.forEach(l => { maxW = Math.max(maxW, l.scrollWidth); });
     if (maxW > 0) {
       let size = Math.floor(30 * (avail / maxW) * 0.98);
-      size = Math.max(12, Math.min(inFs ? 46 : 30, size));
+      size = Math.max(12, Math.min(readerZoom > 1 ? 60 : (inFs ? 46 : 30), size));
       // في ملء الشاشة: ارتفاع الصفحة لا يتجاوز الشاشة — تُوزَّع الأسطر على الصفحة كلها كالمصحف المطبوع
-      if (inFs) {
+      if (inFs && readerZoom <= 1) {
         const head = view.querySelector(".page-sheet-head");
         const foot = view.querySelector(".page-sheet-foot");
         const reserved = (head ? head.offsetHeight + 12 : 34) + (foot ? foot.offsetHeight + 12 : 34) + 30;
@@ -2522,7 +2598,9 @@
           if (sizeH > 0 && sizeH < size) size = Math.max(12, sizeH);
         }
       }
-      lines.forEach(l => { l.style.fontSize = size + "px"; justifyLine(l, avail - 2); });
+      if (readerZoom > 1) size = Math.max(12, Math.min(96, Math.round(size * readerZoom)));
+      frame.classList.toggle("zoomed", readerZoom > 1);
+      lines.forEach(l => { l.style.fontSize = size + "px"; if (readerZoom > 1) { stripKashida(l); } else { justifyLine(l, avail - 2); } });
     }
   }
   window.addEventListener("resize", () => { fitTextPage(); });
@@ -2797,6 +2875,7 @@
       renderMushafTextPage(pageNum, true);
     };
     img.src = MUSHAF_IMAGE_URL(pageNum);
+    applyReaderZoom();
 
     // تحميل مسبق للصفحة التالية والسابقة لتصفح فوري وسلس
     preloadMushafAdjacentPages(pageNum);
