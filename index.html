@@ -831,6 +831,21 @@
     .reader-fs .mushaf-text-view { align-self: stretch; width: 100%; }
     .reader-fs .mushaf-text-frame { width: 100%; }
     .reader-fs .surahs-filter-box, .reader-fs .surahs-grid { display: none !important; }
+    /* ملء الشاشة: كروم مضغوط — أزرار وصفوف أصغر لتكبر مساحة القراءة والخط */
+    .reader-card.reader-fs { padding: 8px; }
+    .reader-fs .btn-reader-fs { padding: 6px 10px; font-size: 13px; margin-bottom: 6px; }
+    .reader-fs .reader-zoom-bar { gap: 6px; margin-bottom: 6px; }
+    .reader-fs .btn-zoom { padding: 3px 11px; font-size: 12px; }
+    .reader-fs .mushaf-nav-header { padding: 5px 8px; margin-bottom: 6px; }
+    .reader-fs .btn-bookmark-action { padding: 3px 10px; }
+    .reader-fs .mushaf-meta-line { margin-bottom: 6px; }
+    .reader-fs .juz-badge { padding: 2px 10px; }
+    .reader-fs .juz-select { padding: 3px 6px; }
+    .reader-fs .mushaf-page-toolbar { margin-bottom: 6px; }
+    .reader-fs .btn-page-nav { padding: 6px 4px; }
+    .reader-fs .page-counter-badge { padding: 4px 10px; }
+    .reader-fs .mushaf-text-frame { padding: 8px 6px 6px; }
+    .reader-fs .qline { line-height: 1.75; }
     body.reader-fs-open { overflow: hidden; }
 
     /* شريط تقليب الصفحات المريح */
@@ -1473,7 +1488,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "30";
+  const APP_VERSION = "33";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -1514,9 +1529,11 @@
   
   const SHEET_ID = "1lm-t74RuBaR7q3-9-yF74LhaYRlByr0oywvaPQ9B1Gk";
   const ADMIN_URL = "https://script.google.com/macros/s/AKfycbyX2FzA161MS6YL-VxCAe1ja5MyyO_M-x3Q8NUylB_eJcWE0HbDpDpJ08uvz51xcMJTfg/exec?page=admin";
-  // مصادر الإذاعة: الأولى هي إذاعة القرآن الكريم من القاهرة — بثها الرسمي (RadioJar) يعمل بـ HTTP فقط
-  // فيُحجَب على المواقع الآمنة HTTPS، لذا تُبث هنا عبر وسيط HTTPS لنفس المحطة، والاحتياطي إذاعات قرّاء موثقة
+  // مصادر الإذاعة: الأولى إذاعة القرآن الكريم من القاهرة من مصدرها الرسمي RadioJar مباشرة
+  // (MP3 عبر HTTPS — نفس مصدر holyquranradio.com الذي أثبت كينج عملياً أنه لا يفصل أبداً،
+  // ويعمل أصلياً في كل المتصفحات ومنها سفاري الآيفون)، ثم وسيط HLS لنفس المحطة احتياطياً، ثم تلاوات Qurango
   const RADIO_STREAMS = [
+    "https://stream.radiojar.com/8s5u5tpdtwzuv",
     "https://service.webvideocore.net/CL1olYogIrDWvwqiIKK7eCxOS4PStqG9DuEjAr2ZjZQtvS3d4y9r0cvRhvS17SGN/a_7a4vuubc6mo8.m3u8",
     "https://backup.qurango.net/radio/mix",
     "https://backup.qurango.net/radio/maher"
@@ -2317,12 +2334,8 @@
         radioHls.on(Hls.Events.ERROR, (ev, data) => {
           if (data && data.fatal && radioWanted) advanceRadioStream();
         });
-        // أي جزء صوتي يصل فعلاً = البث حي: نجدّد مهلة الانتظار بدل إعلان فشله وهو يعمل
-        radioHls.on(Hls.Events.FRAG_BUFFERED, () => {
-          if (!radioWanted) return;
-          clearRadioStallTimer();
-          radioStallTimer = setTimeout(() => { if (radioWanted && radioAudio.paused) advanceRadioStream(); }, 15000);
-        });
+        // لا رقيب دوري بعد بدء البث (حُذف في v31): الفحص عند البدء فقط، ولا نقل للمحطة
+        // الاحتياطية إلا عند خطأ قاتل فعلي — تماماً كصفحة العميل البرايفت المجربة عملياً.
         if (radioWanted) playRadioSafe();
       });
       return;
@@ -2602,7 +2615,7 @@
         const bands = view.querySelectorAll(".surah-header-band, .basmala-line").length;
         const totalLines = lines.length + bands;
         if (availH > 120 && totalLines > 0) {
-          const sizeH = Math.floor(availH / (totalLines * 1.9));
+          const sizeH = Math.floor(availH / (totalLines * (inFs ? 1.75 : 1.9)));
           if (sizeH > 0 && sizeH < size) size = Math.max(12, sizeH);
         }
       }
