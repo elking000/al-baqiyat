@@ -1479,7 +1479,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "26";
+  const APP_VERSION = "27";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -2508,13 +2508,25 @@
       if (isArabicBaseCh(ch)) {
         if (prevBase && NON_CONNECTING.indexOf(prevBase) === -1 && !(prevBase === "ل" && "اأإآ".indexOf(ch) !== -1)) pos.push(i);
         prevBase = ch;
+      } else if (ch === " ") {
+        prevBase = null; // لا مدّ بعد مسافة أبداً — الكشيدة داخل الكلمات فقط كما في المطبوع
       }
     }
     return pos;
   }
+  // قياس عرض نصّ السطر نفسه لا عرض الإطار — scrollWidth للسطر يساوي عرض الإطار دائماً فكانت الكشيدة تظن كل سطر ممتلئاً ولا تعمل أبداً
+  function measureLineWidth(lineEl) {
+    try {
+      const range = document.createRange();
+      range.selectNodeContents(lineEl);
+      const w = range.getBoundingClientRect().width;
+      if (w > 0) return w;
+    } catch (e) {}
+    return lineEl.scrollWidth;
+  }
   function justifyLine(lineEl, targetWidth) {
     stripKashida(lineEl);
-    const natural = lineEl.scrollWidth;
+    const natural = measureLineWidth(lineEl);
     if (!natural || natural >= targetWidth - 2) return;
     if (natural < targetWidth * 0.5) return; // سطر قصير جداً (آخر سطر بآية/سورة) يبقى كما في المطبوع
     const collect = () => {
@@ -2525,7 +2537,7 @@
     };
     // مرحلة ١: جولات جماعية — مدّ واحد عند كل مواضع التمديد في الجولة الواحدة
     let rounds = 0;
-    while (lineEl.scrollWidth < targetWidth - 2 && rounds < 12) {
+    while (measureLineWidth(lineEl) < targetWidth - 2 && rounds < 12) {
       const c1 = collect();
       if (!c1.allPos.length) break;
       const byNode = {};
@@ -2542,7 +2554,7 @@
     }
     // مرحلة ٢: ضبط دقيق — مدّ واحد في كل مرة حتى الامتلاء
     let guard = 0;
-    while (lineEl.scrollWidth < targetWidth - 2 && guard < 160) {
+    while (measureLineWidth(lineEl) < targetWidth - 2 && guard < 160) {
       const c2 = collect();
       if (!c2.allPos.length) break;
       const pick = c2.allPos[guard % c2.allPos.length];
@@ -2552,7 +2564,7 @@
     }
     // مرحلة ٣: لو تجاوز العرض المستهدف، إزالة آخر مدّ واحد في كل مرة
     guard = 0;
-    while (lineEl.scrollWidth > targetWidth && guard < 160) {
+    while (measureLineWidth(lineEl) > targetWidth && guard < 160) {
       const nodes = lineTextNodes(lineEl);
       let done = false;
       for (let i = nodes.length - 1; i >= 0 && !done; i--) {
@@ -2581,7 +2593,7 @@
     fitRetryCount = 0;
     lines.forEach(l => { stripKashida(l); l.style.fontSize = "30px"; });
     let maxW = 0;
-    lines.forEach(l => { maxW = Math.max(maxW, l.scrollWidth); });
+    lines.forEach(l => { maxW = Math.max(maxW, measureLineWidth(l)); });
     if (maxW > 0) {
       let size = Math.floor(30 * (avail / maxW) * 0.98);
       size = Math.max(12, Math.min(readerZoom > 1 ? 60 : (inFs ? 46 : 30), size));
