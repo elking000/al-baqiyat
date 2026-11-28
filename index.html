@@ -836,6 +836,9 @@
     .reader-fs .mushaf-page-img { height: 100%; max-height: 100%; }
     .reader-fs .mushaf-text-view { flex: 1 1 auto; min-height: 0; padding: 4px; }
     .reader-fs .mushaf-text-frame { height: 100%; justify-content: space-between; }
+    .reader-fs .mushaf-page-stage { align-items: stretch; }
+    .reader-fs .mushaf-text-view { align-self: stretch; width: 100%; }
+    .reader-fs .mushaf-text-frame { width: 100%; }
     .reader-fs .surahs-filter-box, .reader-fs .surahs-grid { display: none !important; }
     body.reader-fs-open { overflow: hidden; }
 
@@ -1479,7 +1482,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "27";
+  const APP_VERSION = "28";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -2411,7 +2414,7 @@
     applyReaderZoom();
     const btn = document.getElementById("btn-reader-fs");
     if (btn) btn.textContent = on ? "✕ إغلاق ملء الشاشة" : "⛶ قراءة بملء الشاشة — خط أكبر وصفحة كاملة";
-    if (on) setTimeout(fitTextPage, 80);
+    if (on) { setTimeout(fitTextPage, 80); setTimeout(fitTextPage, 400); }
   }
   // ===== تكبير/تصغير القارئ (المصوّر والنصّي) =====
   const READER_ZOOM_STEPS = [1, 1.3, 1.6, 2, 2.5, 3];
@@ -2554,7 +2557,7 @@
     }
     // مرحلة ٢: ضبط دقيق — مدّ واحد في كل مرة حتى الامتلاء
     let guard = 0;
-    while (measureLineWidth(lineEl) < targetWidth - 2 && guard < 160) {
+    while (measureLineWidth(lineEl) < targetWidth - 2 && guard < 320) {
       const c2 = collect();
       if (!c2.allPos.length) break;
       const pick = c2.allPos[guard % c2.allPos.length];
