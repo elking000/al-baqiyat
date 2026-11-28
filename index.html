@@ -1488,7 +1488,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "33";
+  const APP_VERSION = "34";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -1541,6 +1541,7 @@
   const CAIRO_QURAN_RADIO_URL = RADIO_STREAMS[0];
   let radioStreamIndex = 0;
   let radioWanted = false;
+  let radioRetryUsed = false;
   let radioStallTimer = null;
 
   const ALL_SURAHS = [
@@ -2294,13 +2295,13 @@
 
   // تشغيل آمن للإذاعة: يفرّق بين رفض المتصفح للتشغيل التلقائي (NotAllowedError — لا نبدّل المصدر)
   // وبين فشل حقيقي في البث، ويراقب بدء التشغيل بمهلة حتى لا يعلّق البث بصمت على الموبايل
+  // تشغيل بسيط على طريقة المشغلات التي لا تفصل (روح وholyquranradio): نطلب التشغيل فقط.
+  // لا تبديل للمصدر بسبب رفض وعد التشغيل ولا بمؤقّتات مراقبة — التبديل عند خطأ حقيقي فقط.
   function playRadioSafe() {
     clearRadioStallTimer();
-    radioStallTimer = setTimeout(() => { if (radioWanted && radioAudio.paused) advanceRadioStream(); }, 15000);
-    radioAudio.play().then(updateRadioBtn).catch((err) => {
-      if (err && err.name === "NotAllowedError") { updateRadioBtn(); return; }
-      if (radioWanted) advanceRadioStream();
-    });
+    const p = radioAudio.play();
+    if (p && p.catch) p.catch(() => {});
+    updateRadioBtn();
   }
 
   // تحميل مكتبة HLS مسبقاً عند أول لمسة للشاشة حتى تكون جاهزة لحظة ضغط زر الإذاعة
@@ -2373,13 +2374,26 @@
     }
   }
 
-  radioAudio.addEventListener('error', () => { if (radioWanted) advanceRadioStream(); });
-  radioAudio.addEventListener('stalled', () => {
+  // حالة الزر تتبع أحداث العنصر نفسه مباشرة — فتعكس الحقيقة دائماً
+  radioAudio.addEventListener('playing', () => { radioRetryUsed = false; clearRadioStallTimer(); updateRadioBtn(); });
+  radioAudio.addEventListener('pause', () => { clearRadioStallTimer(); updateRadioBtn(); });
+  // التبديل للمصدر التالي عند خطأ حقيقي من العنصر فقط: مهلة 4 ثوانٍ ثم فحص أن الصوت ما زال
+  // متوقفاً فعلاً، ومصدر القاهرة يُعاد مرة واحدة برابط جديد (توكن RadioJar قصير العمر) قبل تجاوزه.
+  // لا مستمع 'stalled' مبدّلاً: المتصفح يتعافى من التقطيع وحده كما في المشغلات البسيطة.
+  radioAudio.addEventListener('error', () => {
+    if (!radioWanted) return;
     clearRadioStallTimer();
-    radioStallTimer = setTimeout(() => { if (radioWanted) advanceRadioStream(); }, 8000);
+    radioStallTimer = setTimeout(() => {
+      if (!radioWanted || !radioAudio.paused) return;
+      if (radioStreamIndex === 0 && !radioRetryUsed) {
+        radioRetryUsed = true;
+        setRadioStream(0);
+        playRadioSafe();
+      } else {
+        advanceRadioStream();
+      }
+    }, 4000);
   });
-  ['playing', 'canplay', 'progress'].forEach(ev => radioAudio.addEventListener(ev, clearRadioStallTimer));
-  radioAudio.addEventListener('pause', clearRadioStallTimer);
 
   function switchQuranMode(mode) {
     const btnRead = document.getElementById("btn-mode-read");
