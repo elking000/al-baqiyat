@@ -1,4 +1,4 @@
-const CACHE_NAME = 'baqiyat-v23';
+const CACHE_NAME = 'baqiyat-v25';
 const RUNTIME_CACHE = 'baqiyat-runtime-v12';
 const PRECACHE = [
   '/',
@@ -46,8 +46,8 @@ self.addEventListener('fetch', (e) => {
     const dynManifest = {
       name: mSlug ? 'صدقة جارية' : 'منصة الباقيات',
       short_name: mSlug ? 'صدقة جارية' : 'الباقيات',
-      id: mSlug ? ('/?page=' + encodeURIComponent(mSlug)) : '/',
-      start_url: mSlug ? ('/?page=' + encodeURIComponent(mSlug)) : '/',
+      id: mSlug ? ('/p/' + encodeURIComponent(mSlug)) : '/',
+      start_url: mSlug ? ('/p/' + encodeURIComponent(mSlug)) : '/',
       scope: '/',
       display: 'standalone',
       background_color: '#f8f9fa',

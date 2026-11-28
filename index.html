@@ -35,7 +35,7 @@
         };
         // مانيفست حقيقي يولّده الـ Service Worker لكل صفحة فقيد (مانيفست البلوب لا يقرأه آيفون فيرجع لملف ثابت خاطئ)
         var mSlug = "";
-        try { mSlug = new URLSearchParams(window.location.search).get("page") || ""; } catch (e) {}
+        try { mSlug = new URLSearchParams(window.location.search).get("page") || (window.location.pathname.match(/^\/p\/([^\/]+)/) || [])[1] || ""; } catch (e) {}
         document.querySelector('link[rel="manifest"]').href = "/api/manifest" + (mSlug ? ("?page=" + encodeURIComponent(mSlug)) : "");
       } catch (e) {}
     })();
@@ -640,7 +640,9 @@
       border: 2px solid #C5A059;
       box-shadow: inset 0 0 0 3px #fffdf4, inset 0 0 0 5px rgba(197,160,89,.65);
       border-radius: 8px;
-      padding: 12px 8px 8px;
+      padding: 14px 10px 10px;
+      display: flex;
+      flex-direction: column;
     }
     .qline {
       font-family: 'UthmanicHafs', 'Amiri', serif;
@@ -797,6 +799,39 @@
       display: block;
       transition: opacity 0.2s ease;
     }
+
+    /* زر ووضع القراءة بملء الشاشة: صفحة المصحف بحجم شاشة الموبايل كلها لقراءة أوضح */
+    .btn-reader-fs {
+      width: 100%;
+      background: linear-gradient(135deg, #C5A059, #E3C878);
+      color: #3D2F04;
+      border: none;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-bottom: 10px;
+      font-family: inherit;
+    }
+    .reader-card.reader-fs {
+      position: fixed;
+      inset: 0;
+      z-index: 2800;
+      height: 100dvh;
+      border-radius: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #FFFDF9;
+    }
+    .reader-fs .mushaf-page-stage { flex: 1 1 auto; min-height: 0; margin-bottom: 0; }
+    .reader-fs .mushaf-page-img { height: 100%; max-height: 100%; }
+    .reader-fs .mushaf-text-view { flex: 1 1 auto; min-height: 0; padding: 4px; }
+    .reader-fs .mushaf-text-frame { height: 100%; justify-content: space-between; }
+    .reader-fs .surahs-filter-box, .reader-fs .surahs-grid { display: none !important; }
+    body.reader-fs-open { overflow: hidden; }
 
     /* شريط تقليب الصفحات المريح */
     .mushaf-page-toolbar {
@@ -1044,7 +1079,7 @@
       <div class="pl-numrow"><span class="who">فودافون كاش</span><span class="num" dir="ltr">01092562271</span><button type="button" class="copy-num" onclick="copyPayNum('01092562271', this)">نسخ</button></div>
       <div class="pl-numrow"><span class="who">إنستا باي</span><span class="num" dir="ltr">01229385401</span><button type="button" class="copy-num" onclick="copyPayNum('01229385401', this)">نسخ</button></div>
       <a id="pl-wa" class="pl-wa" href="#" target="_blank">تفعيل الصفحة عبر واتساب 📲</a>
-      <a class="pl-sample" href="https://al-baqiyat.site/?page=silman-eid" target="_blank">شاهد نموذجاً حياً لصفحة مفعّلة</a>
+      <a class="pl-sample" href="https://al-baqiyat.site/p/silman-eid" target="_blank">شاهد نموذجاً حياً لصفحة مفعّلة</a>
       <p class="pl-dua" id="pl-dua">رحمه الله رحمةً واسعة وأسكنه فسيح جناته 🤍</p>
     </div>
   </div>
@@ -1250,8 +1285,9 @@
             <span>النصي (الرسم العثماني)</span>
           </button>
         </div>
-        <div class="reader-card">
+        <div class="reader-card" id="reader-card">
           
+          <button type="button" id="btn-reader-fs" class="btn-reader-fs" onclick="toggleReaderFullscreen()">⛶ قراءة بملء الشاشة — خط أكبر وصفحة كاملة</button>
           <div class="mushaf-nav-header">
             <button type="button" class="btn-bookmark-action" onclick="jumpToMushafBookmark()">🔖 آخر علامة وقف</button>
             <div class="mushaf-direct-inputs">
@@ -1431,7 +1467,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "23";
+  const APP_VERSION = "25";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -1634,7 +1670,7 @@
 
   const params = new URLSearchParams(window.location.search);
   const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
-  const safePath = (path === "index.html" || path === "index") ? "" : path;
+  const safePath = (path === "index.html" || path === "index") ? "" : path.replace(/^p\//, "");
   const rawPageParam = params.get("page") || params.get("slug") || safePath || "";
   const pageSlug = cleanArabicSlug(rawPageParam);
 
@@ -1659,7 +1695,7 @@
   } catch(e) {}
 
   if (!pageSlug && isInstalledApp && lastSavedSlug) {
-    window.location.replace("/?page=" + encodeURIComponent(lastSavedSlug));
+    window.location.replace("/p/" + encodeURIComponent(lastSavedSlug));
   } else if (pageSlug === "admin") {
     window.location.href = ADMIN_URL;
   } else if (pageSlug) {
@@ -1770,7 +1806,7 @@
   function showPreviewLock(person) {
     const lock = document.getElementById("preview-lock");
     if (!lock) return;
-    const pageUrl = BASE_URL + "/?page=" + encodeURIComponent(person.slug || "");
+    const pageUrl = BASE_URL + "/p/" + encodeURIComponent(person.slug || "");
     const wa = document.getElementById("pl-wa");
     if (wa) wa.href = "https://wa.me/201092562271?text=" + encodeURIComponent("محتاج أفعّل الصفحة، ممكن أرقام التحويل؟\n" + pageUrl);
     const duaEl = document.getElementById("pl-dua");
@@ -1912,7 +1948,7 @@
 
       renderDeceasedDuas(person, isFem, isGroup);
     
-      const cleanUrl = `${BASE_URL}/?page=${encodeURIComponent(person.slug)}`;
+      const cleanUrl = `${BASE_URL}/p/${encodeURIComponent(person.slug)}`;
       document.getElementById("qr-element").src = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=" + encodeURIComponent(cleanUrl);
 
       tasbeehStorageKey = "tasbeeh_multicount_" + person.slug;
@@ -2349,8 +2385,22 @@
       btnRead.classList.remove("active");
       secListen.style.display = "block";
       secRead.style.display = "none";
+      toggleReaderFullscreen(false);
     }
   }
+
+  // ===== وضع القراءة بملء الشاشة: صفحة المصحف بحجم شاشة الموبايل كلها =====
+  function toggleReaderFullscreen(force) {
+    const card = document.getElementById("reader-card");
+    if (!card) return;
+    const on = (typeof force === "boolean") ? force : !card.classList.contains("reader-fs");
+    card.classList.toggle("reader-fs", on);
+    document.body.classList.toggle("reader-fs-open", on);
+    const btn = document.getElementById("btn-reader-fs");
+    if (btn) btn.textContent = on ? "✕ إغلاق ملء الشاشة" : "⛶ قراءة بملء الشاشة — خط أكبر وصفحة كاملة";
+    if (on) setTimeout(fitTextPage, 80);
+  }
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleReaderFullscreen(false); });
 
   // ===== وضع المصحف: مصوّر (المدينة) / نصّي (الرسم العثماني) — صفحة مشتركة 1..604 =====
   const MUSHAF_IMAGE_URL = (p) => `https://raw.githubusercontent.com/Five-Prayers/quran-pages/main/quran_pages/${p}.png`;
@@ -2446,6 +2496,7 @@
     const frame = view.querySelector(".mushaf-text-frame");
     const lines = view.querySelectorAll(".qline");
     if (!frame || !lines.length) return;
+    const inFs = !!(frame.closest && frame.closest(".reader-fs"));
     const avail = frame.clientWidth - 18;
     if (avail < 80) { // القسم مخفي بعد — أعد المحاولة حتى يظهر
       if (fitRetryCount < 12) { fitRetryCount++; setTimeout(fitTextPage, 300); }
@@ -2457,7 +2508,20 @@
     lines.forEach(l => { maxW = Math.max(maxW, l.scrollWidth); });
     if (maxW > 0) {
       let size = Math.floor(30 * (avail / maxW) * 0.98);
-      size = Math.max(12, Math.min(30, size));
+      size = Math.max(12, Math.min(inFs ? 46 : 30, size));
+      // في ملء الشاشة: ارتفاع الصفحة لا يتجاوز الشاشة — تُوزَّع الأسطر على الصفحة كلها كالمصحف المطبوع
+      if (inFs) {
+        const head = view.querySelector(".page-sheet-head");
+        const foot = view.querySelector(".page-sheet-foot");
+        const reserved = (head ? head.offsetHeight + 12 : 34) + (foot ? foot.offsetHeight + 12 : 34) + 30;
+        const availH = frame.clientHeight - reserved;
+        const bands = view.querySelectorAll(".surah-header-band, .basmala-line").length;
+        const totalLines = lines.length + bands;
+        if (availH > 120 && totalLines > 0) {
+          const sizeH = Math.floor(availH / (totalLines * 1.9));
+          if (sizeH > 0 && sizeH < size) size = Math.max(12, sizeH);
+        }
+      }
       lines.forEach(l => { l.style.fontSize = size + "px"; justifyLine(l, avail - 2); });
     }
   }
@@ -3194,7 +3258,7 @@
     fetch(SCRIPT_BASE, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(payload) })
       .catch(() => {})
       .finally(() => {
-        createdPageLink = BASE_URL + "/?page=" + encodeURIComponent(slug);
+        createdPageLink = BASE_URL + "/p/" + encodeURIComponent(slug);
         document.getElementById("create-form-card").style.display = "none";
         document.getElementById("create-success").style.display = "block";
         document.getElementById("cs-link").textContent = createdPageLink;
@@ -3229,7 +3293,7 @@
         const statusEl = document.getElementById("cs-status");
         if (foundSlug) {
           if (foundSlug !== cleanArabicSlug(wantedSlug)) {
-            createdPageLink = BASE_URL + "/?page=" + encodeURIComponent(foundSlug);
+            createdPageLink = BASE_URL + "/p/" + encodeURIComponent(foundSlug);
             document.getElementById("cs-link").textContent = createdPageLink;
             document.getElementById("cs-open").href = createdPageLink;
           }
@@ -3254,14 +3318,14 @@
 
   function shareWhatsApp() {
     if (!currentPerson) return;
-    const link = `${BASE_URL}/?page=${encodeURIComponent(currentPerson.slug)}`;
+    const link = `${BASE_URL}/p/${encodeURIComponent(currentPerson.slug)}`;
     const text = encodeURIComponent(`صدقة جارية وتطبيق دعاء ومصحف كامل للمغفور له بإذن الله (${currentPerson.name})، نسألكم الدعاء له بالرحمة والمغفرة:\n${link}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   }
 
   function copyLink() {
     if (!currentPerson) return;
-    const link = `${BASE_URL}/?page=${encodeURIComponent(currentPerson.slug)}`;
+    const link = `${BASE_URL}/p/${encodeURIComponent(currentPerson.slug)}`;
     fallbackCopy(link, "تم نسخ رابط الصدقة الجارية بنجاح! 🔗");
   }
 
