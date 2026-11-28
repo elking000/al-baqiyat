@@ -1,4 +1,4 @@
-const CACHE_NAME = 'baqiyat-v28';
+const CACHE_NAME = 'baqiyat-v29';
 const RUNTIME_CACHE = 'baqiyat-runtime-v12';
 const PRECACHE = [
   '/',
@@ -74,6 +74,21 @@ self.addEventListener('fetch', (e) => {
           });
         })
       )
+    );
+    return;
+  }
+
+  // صفحات HTML (التنقلات): الشبكة أولاً — التحديثات تصل فوراً، وتُحفظ نسخة واحدة محدثة
+  // بمفتاح '/index.html' مهما كان رابط الصفحة (/p/slug وغيره)؛ وعند انقطاع النت تُرجع النسخة.
+  if (e.request.mode === 'navigate' && url.origin === self.location.origin) {
+    e.respondWith(
+      fetch(e.request).then((res) => {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', copy));
+        }
+        return res;
+      }).catch(() => caches.match('/index.html'))
     );
     return;
   }

@@ -10,34 +10,23 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="الباقيات">
-  <link rel="apple-touch-icon" href="/icon-512.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png">
-  <link rel="manifest" href="/manifest.json">
   <script>
-    // مانيفست ديناميكي: يجعل الصفحة الحالية (صفحة الفقيد) هي شاشة البدء عند تثبيت التطبيق
+    // المانيفست للأندرويد فقط: أجهزة Apple لا تتلقى أي مانيفست نهائياً، فيعتمد Safari على وسوم
+    // apple-mobile-web-app ويحفظ رابط صفحة الفقيد نفسه (/p/slug) بملء الشاشة وباسم الفقيد.
     (function () {
+      var isApple = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (isApple) return;
+      var mSlug = "";
       try {
-        var startUrl = window.location.pathname + window.location.search;
-        var dynManifest = {
-          name: "منصة الباقيات",
-          short_name: "الباقيات",
-          start_url: startUrl,
-          scope: window.location.pathname,
-          id: startUrl,
-          display: "standalone",
-          background_color: "#f8f9fa",
-          theme_color: "#0f4c3a",
-          orientation: "portrait",
-          icons: [
-            { src: window.location.origin + "/icon-192.png", sizes: "192x192", type: "image/png" },
-            { src: window.location.origin + "/icon-512.png", sizes: "512x512", type: "image/png" }
-          ]
-        };
-        // مانيفست حقيقي يولّده الـ Service Worker لكل صفحة فقيد (مانيفست البلوب لا يقرأه آيفون فيرجع لملف ثابت خاطئ)
-        var mSlug = "";
-        try { mSlug = new URLSearchParams(window.location.search).get("page") || (window.location.pathname.match(/^\/p\/([^\/]+)/) || [])[1] || ""; } catch (e) {}
-        document.querySelector('link[rel="manifest"]').href = "/api/manifest" + (mSlug ? ("?page=" + encodeURIComponent(mSlug)) : "");
+        var q = new URLSearchParams(window.location.search);
+        mSlug = q.get("page") || q.get("slug") || (window.location.pathname.match(/^\/p\/([^\/]+)/) || [])[1] || "";
+        if (mSlug) mSlug = decodeURIComponent(mSlug);
       } catch (e) {}
+      var link = document.createElement("link");
+      link.rel = "manifest";
+      link.href = mSlug ? ("/api/manifest?page=" + encodeURIComponent(mSlug)) : "/manifest.json";
+      document.head.appendChild(link);
     })();
   </script>
 
@@ -116,6 +105,7 @@
       color: #FFF;
       text-align: center;
       padding: 38px 18px 24px;
+      padding-top: calc(38px + env(safe-area-inset-top));
       border-radius: 0 0 32px 32px;
       position: relative;
       box-shadow: 0 14px 35px rgba(2, 20, 16, 0.35);
@@ -141,7 +131,7 @@
     }
     .btn-install-shortcut {
       position: absolute;
-      top: 14px;
+      top: calc(14px + env(safe-area-inset-top));
       left: 14px;
       z-index: 6;
       background: var(--accent);
@@ -157,6 +147,7 @@
       align-items: center;
       gap: 5px;
     }
+    @media all and (display-mode: standalone) { .btn-install-shortcut { display: none !important; } }
 
     .avatar-outer {
       position: relative;
@@ -1482,7 +1473,7 @@
   const BASE_URL = "https://al-baqiyat.site";
 
   // ===== تحديث قسري عند تغيّر الإصدار: مسح الكاش القديم مرة واحدة تلقائياً =====
-  const APP_VERSION = "28";
+  const APP_VERSION = "29";
   (function enforceAppVersion() {
     let old = null;
     try { old = localStorage.getItem("app_ver"); } catch(e) {}
@@ -1518,14 +1509,8 @@
     navigator.serviceWorker.register('/sw.js').then(reg => { if (reg) reg.update(); }).catch(() => {});
   }
 
-  // حل الآيفون: لا نضيف المانيفست في أجهزة iOS لكي يثبت سفاري الرابط المباشر للمتوفى
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  if (!isIOS) {
-    const m = document.createElement("link");
-    m.rel = "manifest";
-    m.href = "/manifest.json";
-    document.head.appendChild(m);
-  }
+  // كشف أجهزة Apple (يشمل آيباد الحديث الذي يعرّف نفسه كماك): المانيفست يُدار من سكريبت الـ head وحده
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   
   const SHEET_ID = "1lm-t74RuBaR7q3-9-yF74LhaYRlByr0oywvaPQ9B1Gk";
   const ADMIN_URL = "https://script.google.com/macros/s/AKfycbyX2FzA161MS6YL-VxCAe1ja5MyyO_M-x3Q8NUylB_eJcWE0HbDpDpJ08uvz51xcMJTfg/exec?page=admin";
@@ -1980,7 +1965,7 @@
       loadCondolences();
 
       // فحص أوقات الصلاة لعرض التذكير الذكي
-      checkPrayerReminderTime(person, isFem);
+      if (person.status !== "preview") checkPrayerReminderTime(person, isFem);
 
       // إشعارات الدعاء عند كل صلاة: تذكّر صاحب الصفحة وابدأ الجدولة إن كانت مفعّلة
       notifyPerson = { name: person.name, slug: person.slug, fem: !!isFem };
@@ -3017,6 +3002,7 @@
     if (autoplay) {
       if (!radioAudio.paused) {
         radioAudio.pause();
+        radioWanted = false; clearRadioStallTimer();
         document.getElementById("radio-btn-icon").textContent = "▶";
         document.getElementById("radio-btn-txt").textContent = "استماع";
       }
@@ -3031,6 +3017,7 @@
     if (audio.paused) {
       if (!radioAudio.paused) {
         radioAudio.pause();
+        radioWanted = false; clearRadioStallTimer();
         document.getElementById("radio-btn-icon").textContent = "▶";
         document.getElementById("radio-btn-txt").textContent = "استماع";
       }
@@ -3413,7 +3400,7 @@
   function shareWhatsApp() {
     if (!currentPerson) return;
     const link = `${BASE_URL}/p/${encodeURIComponent(currentPerson.slug)}`;
-    const text = encodeURIComponent(`صدقة جارية وتطبيق دعاء ومصحف كامل للمغفور له بإذن الله (${currentPerson.name})، نسألكم الدعاء له بالرحمة والمغفرة:\n${link}`);
+    const text = encodeURIComponent(`صدقة جارية وتطبيق دعاء ومصحف كامل ${currentPerson.title} (${currentPerson.name})، نسألكم الدعاء له بالرحمة والمغفرة:\n${link}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   }
 
